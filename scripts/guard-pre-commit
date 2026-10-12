@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+temporary_paths=$(mktemp "${TMPDIR:-/tmp}/flightctl-mat-docs-staged.XXXXXX")
+trap 'rm -f "$temporary_paths"' 0 HUP INT TERM
+git diff --cached --no-renames --name-only -z --diff-filter=ACMR > "$temporary_paths"
+
+while IFS= read -r -d '' path; do
+  case "$path" in
+    .scratch|.scratch/*|docs/adr|docs/adr/*|GLOSSARY.md)
+      printf 'Commit blocked: keep %s in the local materials repository.\n' "$path" >&2
+      exit 1
+      ;;
+  esac
+done < "$temporary_paths"

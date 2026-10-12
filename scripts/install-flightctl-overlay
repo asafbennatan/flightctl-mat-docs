@@ -1,0 +1,150 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  printf 'Usage: %s /path/to/flightctl-checkout-or-worktree\n' "$0" >&2
+  exit 2
+}
+
+[[ $# -eq 1 ]] || usage
+
+docs_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)
+flightctl_root=$(git -C "$1" rev-parse --show-toplevel 2>/dev/null) || {
+  printf 'Not a Git checkout: %s\n' "$1" >&2
+  exit 1
+}
+flightctl_root=$(cd -- "$flightctl_root" && pwd -P)
+docs_git_root=$(git -C "$docs_root" rev-parse --show-toplevel 2>/dev/null) || {
+  printf 'The overlay must be inside a Git checkout: %s\n' "$docs_root" >&2
+  exit 1
+}
+docs_git_root=$(cd -- "$docs_git_root" && pwd -P)
+[[ "$docs_git_root" == "$docs_root" ]] || {
+  printf 'Run this script from the root of the overlay repository.\n' >&2
+  exit 1
+}
+
+case "$docs_root/" in
+  "$flightctl_root/"*)
+    printf 'Keep the overlay checkout outside the Flight Control checkout.\n' >&2
+    exit 1
+    ;;
+esac
+
+for relative in .scratch docs/adr GLOSSARY.md; do
+  if [[ ! -e "$docs_root/$relative" ]]; then
+    printf 'Missing overlay path: %s\n' "$docs_root/$relative" >&2
+    exit 1
+  fi
+done
+
+common_git_dir=$(git -C "$flightctl_root" rev-parse --git-common-dir)
+if [[ "$common_git_dir" != /* ]]; then
+  common_git_dir=$(cd -- "$flightctl_root/$common_git_dir" && pwd -P)
+fi
+state_dir="$common_git_dir/flightctl-mat-docs-overlay"
+managed_hooks="$state_dir/hooks"
+prior_hooks="$state_dir/prior-hooks"
+mkdir -p "$managed_hooks" "$prior_hooks"
+
+resolve_hook_path() {
+  local hook_path=$1
+  if [[ "$hook_path" == /* ]]; then
+    printf '%s\n' "$hook_path"
+  else
+    mkdir -p "$flightctl_root/$hook_path"
+    (cd "$flightctl_root/$hook_path" && pwd -P)
+  fi
+}
+
+is_legacy_overlay_hook() {
+  local hook_name=$1
+  local hook_path=$2
+  case "$hook_name" in
+    post-checkout)
+      grep -Fq 'flightctl-mat-docs-sync' "$hook_path"
+      ;;
+    pre-commit)
+      grep -Fq 'Commit blocked:' "$hook_path" &&
+        grep -Fq '.scratch' "$hook_path" &&
+        grep -Fq 'GLOSSARY.md' "$hook_path"
+      ;;
+    pre-push)
+      grep -Fq 'Push blocked:' "$hook_path" &&
+        grep -Fq '.scratch' "$hook_path" &&
+        grep -Fq 'GLOSSARY.md' "$hook_path"
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
+configured_hooks=$(git -C "$flightctl_root" config --path --get core.hooksPath 2>/dev/null || true)
+if [[ -n "$configured_hooks" ]]; then
+  configured_hooks=$(resolve_hook_path "$configured_hooks")
+else
+  configured_hooks=$(git -C "$flightctl_root" rev-parse --git-path hooks)
+  configured_hooks=$(resolve_hook_path "$configured_hooks")
+fi
+
+if [[ "$configured_hooks" == "$managed_hooks" ]]; then
+  original_hooks=$(git -C "$flightctl_root" config --local --get flightctl-mat-docs.priorHooksPath 2>/dev/null || true)
+else
+  original_hooks=$configured_hooks
+fi
+
+if [[ -z "$original_hooks" || "$original_hooks" == "$managed_hooks" ]]; then
+  printf 'Could not determine the previous Git hooks directory safely.\n' >&2
+  exit 1
+fi
+
+# Preserve executable hooks from the prior hooks directory before changing
+# core.hooksPath. Re-running the installer refreshes these local copies.
+if [[ -d "$original_hooks" ]]; then
+  for hook_path in "$original_hooks"/*; do
+    [[ -f "$hook_path" && -x "$hook_path" ]] || continue
+    hook_name=$(basename "$hook_path")
+    if is_legacy_overlay_hook "$hook_name" "$hook_path"; then
+      printf 'Replacing old overlay hook: %s\n' "$hook_name"
+      continue
+    fi
+    cp -p "$hook_path" "$prior_hooks/$hook_name"
+  done
+fi
+
+for hook_name in post-checkout post-merge pre-commit pre-push; do
+  cp "$docs_root/scripts/flightctl-mat-docs-hook" "$managed_hooks/$hook_name"
+  chmod 755 "$managed_hooks/$hook_name"
+done
+
+if [[ -d "$prior_hooks" ]]; then
+  for hook_path in "$prior_hooks"/*; do
+    [[ -f "$hook_path" && -x "$hook_path" ]] || continue
+    hook_name=$(basename "$hook_path")
+    [[ -e "$managed_hooks/$hook_name" ]] && continue
+    cp "$docs_root/scripts/flightctl-mat-docs-hook" "$managed_hooks/$hook_name"
+    chmod 755 "$managed_hooks/$hook_name"
+  done
+fi
+
+git -C "$flightctl_root" config --local flightctl-mat-docs.overlayRoot "$docs_root"
+git -C "$flightctl_root" config --local flightctl-mat-docs.stateDir "$state_dir"
+git -C "$flightctl_root" config --local flightctl-mat-docs.priorHooksPath "$original_hooks"
+git -C "$flightctl_root" config --local core.hooksPath "$managed_hooks"
+
+exclude_file=$(git -C "$flightctl_root" rev-parse --git-path info/exclude)
+if [[ "$exclude_file" != /* ]]; then
+    exclude_file="$flightctl_root/$exclude_file"
+fi
+mkdir -p "$(dirname "$exclude_file")"
+touch "$exclude_file"
+for pattern in /.scratch /docs/adr /GLOSSARY.md; do
+  if ! grep -Fqx "$pattern" "$exclude_file"; then
+    printf '%s\n' "$pattern" >> "$exclude_file"
+  fi
+done
+
+"$docs_root/scripts/flightctl-mat-docs-sync" "$flightctl_root"
+
+printf 'Installed overlay from %s for Flight Control clone %s\n' "$docs_root" "$flightctl_root"
