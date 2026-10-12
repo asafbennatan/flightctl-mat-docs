@@ -12,8 +12,8 @@ Standardize delta candidate selection, runtime-aware image digest reporting, and
 - OS and application image status reports observed digests from bootc, the correct Podman user store, or the configured CRI runtime; desired image identity remains separate from lastDelta.
 - Source image, desired target, reconstructed manifest, observed image, and delta artifact digests remain distinct. lastDelta contains only outcome and optional fallback reason.
 - Image index digests, selected platform manifest digests, and runtime image IDs remain distinct; observed digest status comes from the owning subsystem.
-- A hinted delta's source digest comes from its artifact metadata and must be available in the target's owning store before apply.
-- Discovery considers related referrers in the desired target's repository, filters to locally available source images in the owning store, and selects the smallest total downloadable delta with deterministic tie-breaking.
+- A hinted delta is usable only when its OCI subject digest matches the resolved target platform manifest digest; its source digest comes from artifact metadata and must be available in the target's owning store before apply.
+- Discovery lists OCI 1.1 referrers for the exact resolved target platform manifest digest in the desired target's repository, filters to locally available source images in the owning store, and selects the smallest total downloadable delta with deterministic tie-breaking.
 - Digest-pinned CRI image references remain eligible for delta application and refresh the exact requested reference after import.
 - Delta download, reconstruction, import, staging, visibility, or refresh failures report Fallback with a reason and attempt the full target. An unusable hinted target, including a top-level OCI artifact, follows the same rule.
 - No selected candidate and no failed hint report NotUsed when an update proceeds without a delta; an already-present desired target with the correct digest reports NotRequired.

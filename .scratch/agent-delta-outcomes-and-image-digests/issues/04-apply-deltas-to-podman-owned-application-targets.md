@@ -7,8 +7,8 @@
 Status: ready-for-agent
 
 - [ ] Container and Quadlet image targets use the Podman store for the resolved RunAs user; an unset RunAs uses the existing agent-process user context.
-- [ ] A hinted delta's source image digest comes from its artifact metadata and is checked in the target's owning Podman store.
-- [ ] Discovery considers related referrers from the desired image's repository, filters by local source availability in that Podman store, and selects the smallest total downloadable delta with deterministic tie-breaking.
+- [ ] A hinted delta's OCI subject digest matches the resolved target platform manifest; its source image digest comes from artifact metadata and is checked in the target's owning Podman store.
+- [ ] Discovery lists OCI 1.1 referrers for the exact resolved target platform manifest digest in the desired image's repository, filters by local source availability in that Podman store, and selects the smallest total downloadable delta with deterministic tie-breaking.
 - [ ] Delta archives and apply intermediates remain temporary; reconstructed images and refreshed canonical desired references land in the same Podman store as the source and workload.
 - [ ] A successful delta refreshes the canonical desired image reference through Podman before reporting Applied.
 - [ ] Delta download, reconstruction, import, or refresh failures report Fallback with a reason and attempt a full Podman pull; reconciliation continues if that pull succeeds.

@@ -6,8 +6,8 @@
 
 Status: implemented
 
-- [x] A hinted delta's source image digest comes from artifact metadata and is checked in the configured CRI runtime store.
-- [x] Discovery considers related referrers from the desired image's repository, filters candidates to source images available in that CRI store, and selects the smallest total downloadable delta with deterministic tie-breaking.
+- [x] A hinted delta's OCI subject digest matches the resolved target platform manifest; its source image digest comes from artifact metadata and is checked in the configured CRI runtime store.
+- [x] Discovery lists OCI 1.1 referrers for the exact resolved target platform manifest digest in the desired image's repository, filters candidates to source images available in that CRI store, and selects the smallest total downloadable delta with deterministic tie-breaking.
 - [x] CRI-O imports the reconstructed image into storage visible to CRI; containerd imports through its configured endpoint and workload namespace. The existing runtime visibility check remains part of the apply result.
 - [x] Digest-pinned CRI references remain eligible for delta application, and the exact requested reference is used for the post-import CRI pull.
 - [x] Applied is reported only after reconstruction, runtime import and visibility, and canonical desired-reference refresh succeed.

@@ -10,7 +10,9 @@
 
 **Platform manifest digest** — The digest of an image manifest for one platform. For a multi-platform image, it can differ from the image index digest.
 
-**Desired target digest** — The registry digest associated with the image selected as the desired update target.
+**Desired target digest** — The registry digest associated with the image selected as the desired update target. For a multi-platform image, it can identify the index rather than a platform manifest.
+
+**OCI referrer subject digest** — The digest of the image object a referrer is associated with, such as an image index or platform manifest. Referrer lookup is keyed by this digest. It identifies the subject object, not the referrer artifact or a manifest reconstructed by applying a delta.
 
 **Source image digest** — The digest of the base image from which an OCI delta reconstructs a target image.
 
