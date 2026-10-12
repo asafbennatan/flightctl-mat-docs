@@ -7,8 +7,46 @@ worktree=$(cd "$worktree" && pwd -P)
 overlay_root=$(git -C "$worktree" config --path --get flightctl-mat-docs.overlayRoot)
 state_dir=$(git -C "$worktree" config --path --get flightctl-mat-docs.stateDir)
 worktree_id=$(printf '%s' "$worktree" | cksum | awk '{print $1 "-" $2}')
+worktree_state="$state_dir/worktrees/$worktree_id"
+index_snapshot="$worktree_state/index-paths"
+prior_skip_worktree="$worktree_state/prior-skip-worktree"
+mkdir -p "$worktree_state"
+if [[ -f "$index_snapshot" ]]; then
+  index_snapshot_existed=yes
+else
+  index_snapshot_existed=no
+fi
+touch "$index_snapshot" "$prior_skip_worktree"
 temporary_paths=$(mktemp "${TMPDIR:-/tmp}/flightctl-mat-docs-index.XXXXXX")
 trap 'rm -f "$temporary_paths"' 0 HUP INT TERM
+
+contains_path() {
+  local expected=$1
+  local snapshot=$2
+  local candidate
+  while IFS= read -r -d '' candidate; do
+    [[ "$candidate" == "$expected" ]] && return 0
+  done < "$snapshot"
+  return 1
+}
+
+hide_tracked_paths() {
+  local tracked_path entry tag
+  for tracked_path in "${tracked_paths[@]}"; do
+    if ! contains_path "$tracked_path" "$index_snapshot"; then
+      entry=
+      IFS= read -r -d '' entry < <(git -C "$worktree" ls-files -v -z -- "$tracked_path" || true)
+      tag=${entry:0:1}
+      printf '%s\0' "$tracked_path" >> "$index_snapshot"
+      if [[ "$tag" == S || "$tag" == s ]]; then
+        if [[ "$index_snapshot_existed" != no || ! -L "$destination" || "$(readlink "$destination")" != "$source_path" ]]; then
+          printf '%s\0' "$tracked_path" >> "$prior_skip_worktree"
+        fi
+      fi
+    fi
+    git -C "$worktree" update-index --skip-worktree -- "$tracked_path"
+  done
+}
 
 for relative in .scratch docs/adr GLOSSARY.md; do
   source_path="$overlay_root/$relative"
@@ -30,9 +68,7 @@ for relative in .scratch docs/adr GLOSSARY.md; do
       printf 'Leaving unexpected symlink in place: %s -> %s\n' "$destination" "$current_target" >&2
       exit 1
     fi
-    for tracked_path in "${tracked_paths[@]}"; do
-      git -C "$worktree" update-index --skip-worktree -- "$tracked_path"
-    done
+    hide_tracked_paths
     continue
   fi
 
@@ -46,9 +82,6 @@ for relative in .scratch docs/adr GLOSSARY.md; do
       printf 'Leaving modified tracked path in place: %s\n%s\n' "$destination" "$status" >&2
       exit 1
     fi
-    for tracked_path in "${tracked_paths[@]}"; do
-      git -C "$worktree" update-index --skip-worktree -- "$tracked_path"
-    done
     backup="$state_dir/backups/$worktree_id/${relative//\//__}"
     if [[ -e "$backup" || -L "$backup" ]]; then
       printf 'Refusing to replace existing local backup: %s\n' "$backup" >&2
@@ -57,11 +90,9 @@ for relative in .scratch docs/adr GLOSSARY.md; do
     mkdir -p "$(dirname "$backup")"
     mv "$destination" "$backup"
     printf 'Preserved prior worktree copy at %s\n' "$backup"
-  else
-    for tracked_path in "${tracked_paths[@]}"; do
-      git -C "$worktree" update-index --skip-worktree -- "$tracked_path"
-    done
   fi
+
+  hide_tracked_paths
 
   ln -s "$source_path" "$destination"
   printf 'Linked %s -> %s\n' "$destination" "$source_path"

@@ -1,0 +1,205 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  printf 'Usage: %s /path/to/flightctl-checkout-or-worktree\n' "$0" >&2
+  exit 2
+}
+
+[[ $# -eq 1 ]] || usage
+
+docs_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)
+flightctl_root=$(git -C "$1" rev-parse --show-toplevel 2>/dev/null) || {
+  printf 'Not a Git checkout: %s\n' "$1" >&2
+  exit 1
+}
+flightctl_root=$(cd -- "$flightctl_root" && pwd -P)
+docs_git_root=$(git -C "$docs_root" rev-parse --show-toplevel 2>/dev/null) || {
+  printf 'The overlay must be inside a Git checkout: %s\n' "$docs_root" >&2
+  exit 1
+}
+docs_git_root=$(cd -- "$docs_git_root" && pwd -P)
+[[ "$docs_git_root" == "$docs_root" ]] || {
+  printf 'Run this script from the root of the overlay repository.\n' >&2
+  exit 1
+}
+
+case "$docs_root/" in
+  "$flightctl_root/"*)
+    printf 'Keep the overlay checkout outside the Flight Control checkout.\n' >&2
+    exit 1
+    ;;
+esac
+
+common_git_dir=$(git -C "$flightctl_root" rev-parse --git-common-dir)
+if [[ "$common_git_dir" != /* ]]; then
+  common_git_dir=$(cd -- "$flightctl_root/$common_git_dir" && pwd -P)
+fi
+state_dir="$common_git_dir/flightctl-mat-docs-overlay"
+managed_hooks="$state_dir/hooks"
+
+overlay_config=$(git -C "$flightctl_root" config --local --get flightctl-mat-docs.overlayRoot 2>/dev/null || true)
+configured_state_dir=$(git -C "$flightctl_root" config --local --path --get flightctl-mat-docs.stateDir 2>/dev/null || true)
+if [[ -z "$overlay_config" && -z "$configured_state_dir" ]]; then
+  printf 'No Flight Control overlay installation was found for %s\n' "$flightctl_root"
+  exit 0
+fi
+if [[ "$overlay_config" != "$docs_root" || "$configured_state_dir" != "$state_dir" ]]; then
+  printf 'The overlay installation metadata does not match this checkout or Git clone.\n' >&2
+  exit 1
+fi
+if [[ -L "$state_dir" || ! -d "$state_dir" ]]; then
+  printf 'The overlay state directory is missing or is not a directory: %s\n' "$state_dir" >&2
+  exit 1
+fi
+
+active_hooks=$(git -C "$flightctl_root" config --local --path --get core.hooksPath 2>/dev/null || true)
+prior_hooks=$(git -C "$flightctl_root" config --local --path --get flightctl-mat-docs.priorHooksPath 2>/dev/null || true)
+if [[ "$active_hooks" != "$managed_hooks" || -z "$prior_hooks" || "$prior_hooks" == "$managed_hooks" ]]; then
+  printf 'Git hooks changed after installation; refusing to replace the current hooks configuration.\n' >&2
+  exit 1
+fi
+
+contains_path() {
+  local expected=$1
+  local snapshot=$2
+  local candidate
+  [[ -f "$snapshot" ]] || return 1
+  while IFS= read -r -d '' candidate; do
+    [[ "$candidate" == "$expected" ]] && return 0
+  done < "$snapshot"
+  return 1
+}
+
+worktree_id() {
+  printf '%s' "$1" | cksum | awk '{print $1 "-" $2}'
+}
+
+worktrees=()
+while IFS= read -r line; do
+  if [[ "$line" == 'worktree '* ]]; then
+    worktree=${line#worktree }
+    [[ -d "$worktree" ]] || continue
+    worktree=$(cd -- "$worktree" && pwd -P)
+    worktrees+=("$worktree")
+  fi
+done < <(git -C "$flightctl_root" worktree list --porcelain)
+
+for worktree in "${worktrees[@]}"; do
+  id=$(worktree_id "$worktree")
+  for relative in .scratch docs/adr GLOSSARY.md; do
+    destination="$worktree/$relative"
+    backup="$state_dir/backups/$id/${relative//\//__}"
+    source_path="$docs_root/$relative"
+
+    if [[ -L "$destination" ]]; then
+      current_target=$(readlink "$destination")
+      if [[ "$current_target" != "$source_path" ]]; then
+        printf 'Unexpected symlink in worktree; refusing to remove it: %s -> %s\n' "$destination" "$current_target" >&2
+        exit 1
+      fi
+    elif [[ -e "$backup" || -L "$backup" ]] && [[ -e "$destination" || -L "$destination" ]]; then
+      printf 'Cannot restore the saved worktree path without overwriting local data: %s\n' "$destination" >&2
+      exit 1
+    fi
+  done
+done
+
+for worktree in "${worktrees[@]}"; do
+  id=$(worktree_id "$worktree")
+  for relative in .scratch docs/adr GLOSSARY.md; do
+    destination="$worktree/$relative"
+    backup="$state_dir/backups/$id/${relative//\//__}"
+    source_path="$docs_root/$relative"
+
+    if [[ -L "$destination" ]] && [[ "$(readlink "$destination")" == "$source_path" ]]; then
+      rm -- "$destination"
+    fi
+    if [[ -e "$backup" || -L "$backup" ]]; then
+      mkdir -p "$(dirname "$destination")"
+      mv -- "$backup" "$destination"
+      printf 'Restored %s\n' "$destination"
+    fi
+  done
+
+  for relative in .scratch docs/adr GLOSSARY.md; do
+    while IFS= read -r -d '' tracked_path; do
+      prior_skip_worktree="$state_dir/worktrees/$id/prior-skip-worktree"
+      if contains_path "$tracked_path" "$prior_skip_worktree"; then
+        git -C "$worktree" update-index --skip-worktree -- "$tracked_path"
+      else
+        git -C "$worktree" update-index --no-skip-worktree -- "$tracked_path"
+      fi
+    done < <(git -C "$worktree" ls-files -z -- "$relative")
+  done
+done
+
+remove_first_exact_line() {
+  local file=$1
+  local pattern=$2
+  local temporary
+  [[ -f "$file" ]] || return 0
+  temporary=$(mktemp "${TMPDIR:-/tmp}/flightctl-mat-docs-exclude.XXXXXX")
+  awk -v pattern="$pattern" '
+    !removed && $0 == pattern { removed = 1; next }
+    { print }
+  ' "$file" > "$temporary"
+  cat "$temporary" > "$file"
+  rm -f -- "$temporary"
+}
+
+exclude_file=$(git -C "$flightctl_root" rev-parse --git-path info/exclude)
+if [[ "$exclude_file" != /* ]]; then
+  exclude_file="$flightctl_root/$exclude_file"
+fi
+if [[ -f "$state_dir/added-excludes" ]]; then
+  while IFS= read -r pattern; do
+    [[ -n "$pattern" ]] && remove_first_exact_line "$exclude_file" "$pattern"
+  done < "$state_dir/added-excludes"
+fi
+
+if [[ -d "$state_dir/prior-hooks" ]]; then
+  for hook_path in "$state_dir/prior-hooks"/*; do
+    [[ -f "$hook_path" && -x "$hook_path" ]] || continue
+    hook_name=$(basename "$hook_path")
+    if [[ ! -e "$prior_hooks/$hook_name" && ! -L "$prior_hooks/$hook_name" ]]; then
+      mkdir -p "$prior_hooks"
+      cp -p "$hook_path" "$prior_hooks/$hook_name"
+    fi
+  done
+fi
+
+prior_hooks_was_set_file="$state_dir/prior-hooks-path-was-set"
+if [[ -f "$prior_hooks_was_set_file" ]]; then
+  IFS= read -r prior_hooks_was_set < "$prior_hooks_was_set_file" || true
+else
+  default_hooks=$(git -C "$flightctl_root" rev-parse --git-path hooks)
+  if [[ "$default_hooks" != /* ]]; then
+    default_hooks=$(cd -- "$flightctl_root/$default_hooks" && pwd -P)
+  fi
+  if [[ "$prior_hooks" == "$default_hooks" ]]; then
+    prior_hooks_was_set=no
+  else
+    prior_hooks_was_set=yes
+  fi
+fi
+
+if [[ "$prior_hooks_was_set" == no ]]; then
+  git -C "$flightctl_root" config --local --unset-all core.hooksPath 2>/dev/null || true
+else
+  git -C "$flightctl_root" config --local core.hooksPath "$prior_hooks"
+fi
+git -C "$flightctl_root" config --local --unset-all flightctl-mat-docs.overlayRoot
+git -C "$flightctl_root" config --local --unset-all flightctl-mat-docs.stateDir
+git -C "$flightctl_root" config --local --unset-all flightctl-mat-docs.priorHooksPath
+
+retained_backup=
+if [[ -d "$state_dir/backups" ]]; then
+  retained_backup=$(find "$state_dir/backups" -mindepth 1 -print -quit)
+fi
+if [[ -n "$retained_backup" ]]; then
+  printf 'Uninstalled overlay. Saved copies remain under %s because their worktrees are no longer available.\n' "$state_dir/backups"
+else
+  rm -rf -- "$state_dir"
+  printf 'Uninstalled overlay from Flight Control clone %s\n' "$flightctl_root"
+fi
