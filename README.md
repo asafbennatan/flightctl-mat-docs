@@ -11,7 +11,7 @@ Flight Control clone:
 
     mkdir -p ~/src
     git clone https://github.com/asafbennatan/flightctl-mat-docs.git ~/src/flightctl-mat-docs
-    ~/src/flightctl-mat-docs/scripts/install-flightctl-overlay ~/src/flightctl
+    ~/src/flightctl-mat-docs/install.sh ~/src/flightctl
 
 For an existing docs checkout, update it with
 git -C /path/to/flightctl-mat-docs pull --ff-only and use its path below.
@@ -42,6 +42,14 @@ its new location.
 To refresh the overlay on a computer after its docs checkout has new commits,
 pull that checkout. The links show its updated files immediately; reinstall
 only if the docs checkout moved.
+
+To remove the overlay from a Flight Control clone, run:
+
+    ~/src/flightctl-mat-docs/uninstall.sh ~/src/flightctl
+
+The uninstaller removes overlay links from its existing worktrees, restores
+any local files saved during installation, and restores the previous hooks
+configuration. Run it from the same docs checkout used to install the overlay.
 
 ## Edit and commit overlay material
 

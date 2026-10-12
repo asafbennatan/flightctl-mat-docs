@@ -45,6 +45,7 @@ fi
 state_dir="$common_git_dir/flightctl-mat-docs-overlay"
 managed_hooks="$state_dir/hooks"
 prior_hooks="$state_dir/prior-hooks"
+added_excludes="$state_dir/added-excludes"
 mkdir -p "$managed_hooks" "$prior_hooks"
 
 resolve_hook_path() {
@@ -99,6 +100,23 @@ if [[ -z "$original_hooks" || "$original_hooks" == "$managed_hooks" ]]; then
   exit 1
 fi
 
+prior_hooks_was_set_file="$state_dir/prior-hooks-path-was-set"
+if [[ "$configured_hooks" != "$managed_hooks" ]]; then
+  if [[ -n "$(git -C "$flightctl_root" config --local --get core.hooksPath 2>/dev/null || true)" ]]; then
+    printf 'yes\n' > "$prior_hooks_was_set_file"
+  else
+    printf 'no\n' > "$prior_hooks_was_set_file"
+  fi
+elif [[ ! -f "$prior_hooks_was_set_file" ]]; then
+  default_hooks=$(git -C "$flightctl_root" rev-parse --git-path hooks)
+  default_hooks=$(resolve_hook_path "$default_hooks")
+  if [[ "$original_hooks" == "$default_hooks" ]]; then
+    printf 'no\n' > "$prior_hooks_was_set_file"
+  else
+    printf 'yes\n' > "$prior_hooks_was_set_file"
+  fi
+fi
+
 # Preserve executable hooks from the prior hooks directory before changing
 # core.hooksPath. Re-running the installer refreshes these local copies.
 if [[ -d "$original_hooks" ]]; then
@@ -142,6 +160,9 @@ touch "$exclude_file"
 for pattern in /.scratch /docs/adr /GLOSSARY.md; do
   if ! grep -Fqx "$pattern" "$exclude_file"; then
     printf '%s\n' "$pattern" >> "$exclude_file"
+    if [[ ! -f "$added_excludes" ]] || ! grep -Fqx "$pattern" "$added_excludes"; then
+      printf '%s\n' "$pattern" >> "$added_excludes"
+    fi
   fi
 done
 
