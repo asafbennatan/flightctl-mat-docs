@@ -68,5 +68,7 @@ Run the shell tests with Bash and Git installed:
 
     tests/run.sh
 
+GitHub Actions runs the same command on branch pushes and pull requests.
+
 The integration test creates disposable Git repositories and a local bare
 remote, then removes them when it exits.
