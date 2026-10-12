@@ -135,7 +135,7 @@ git -C "$flightctl_root" config --local core.hooksPath "$managed_hooks"
 
 exclude_file=$(git -C "$flightctl_root" rev-parse --git-path info/exclude)
 if [[ "$exclude_file" != /* ]]; then
-    exclude_file="$common_git_dir/$exclude_file"
+    exclude_file="$flightctl_root/$exclude_file"
 fi
 mkdir -p "$(dirname "$exclude_file")"
 touch "$exclude_file"

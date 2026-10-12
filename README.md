@@ -61,3 +61,12 @@ have that history cleaned before they can be pushed.
 Local Git hooks are a guard for ordinary workflows. A user can bypass or
 remove them, so a strict server-enforced guarantee also requires an upstream
 server-side rule that rejects these paths.
+
+## Test the setup
+
+Run the shell tests with Bash and Git installed:
+
+    tests/run.sh
+
+The integration test creates disposable Git repositories and a local bare
+remote, then removes them when it exits.
