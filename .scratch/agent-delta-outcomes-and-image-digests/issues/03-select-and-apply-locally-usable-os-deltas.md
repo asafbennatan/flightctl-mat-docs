@@ -6,9 +6,9 @@
 
 Status: ready-for-agent
 
-- [ ] A hinted delta's source image digest is read from the delta artifact metadata and checked for availability in the bootc-managed image store.
+- [ ] A hinted delta's OCI subject digest matches the resolved target platform manifest; its source image digest is read from the artifact metadata and checked for availability in the bootc-managed image store.
 - [ ] A missing, invalid, or otherwise unusable hinted delta reports Fallback with a reason and proceeds through the full OS target path.
-- [ ] Discovery considers related OCI delta referrers from the desired image's repository and retains only candidates whose declared source image is locally available.
+- [ ] Discovery lists OCI 1.1 referrers for the exact resolved target platform manifest digest in the desired image's repository and retains only candidates whose declared source image is locally available.
 - [ ] Discovery selects the candidate with the lowest total downloadable artifact size and breaks ties deterministically by candidate reference.
 - [ ] An already-present desired OS target with the correct digest reports NotRequired; an update with no selected candidate reports NotUsed.
 - [ ] Applied is reported only after reconstruction, bootc staging, and canonical desired-reference staging all succeed.
