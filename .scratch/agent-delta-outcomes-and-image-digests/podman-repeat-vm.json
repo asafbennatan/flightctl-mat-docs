@@ -1,0 +1,229 @@
+{
+  "vm": "flightctl-device-default",
+  "podmanVersion": "podman version 5.8.5",
+  "registry": {
+    "tagRef": "docker.io/library/alpine:3.22",
+    "tagRawDigest": "sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8",
+    "indexDigest": "sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8",
+    "indexMediaType": "application/vnd.oci.image.index.v1+json",
+    "linuxAMD64Descriptor": {
+      "annotations": {
+        "com.docker.official-images.bashbrew.arch": "amd64",
+        "org.opencontainers.image.base.name": "scratch",
+        "org.opencontainers.image.created": "2026-09-17T20:37:41Z",
+        "org.opencontainers.image.revision": "32cb3f1f45f4fee15882936c06a264eb9e5130fe",
+        "org.opencontainers.image.source": "https://github.com/alpinelinux/docker-alpine.git#32cb3f1f45f4fee15882936c06a264eb9e5130fe:x86_64",
+        "org.opencontainers.image.url": "https://hub.docker.com/_/alpine",
+        "org.opencontainers.image.version": "3.22.6"
+      },
+      "digest": "sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+      "mediaType": "application/vnd.oci.image.manifest.v1+json",
+      "platform": {
+        "architecture": "amd64",
+        "os": "linux"
+      },
+      "size": 1022
+    },
+    "platformRawDigest": "sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+    "platformMediaType": "application/vnd.oci.image.manifest.v1+json",
+    "configDigest": "sha256:c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238"
+  },
+  "cases": [
+    {
+      "case": "tag",
+      "requestedRef": "docker.io/library/alpine:3.22",
+      "graphroot": "/var/tmp/flightctl-podman-digest-probe-20261012-tag",
+      "runroot": "/run/flightctl-podman-digest-probe-20261012-tag",
+      "commands": [
+        "sudo podman --root /var/tmp/flightctl-podman-digest-probe-20261012-tag --runroot /run/flightctl-podman-digest-probe-20261012-tag --storage-driver overlay pull docker.io/library/alpine:3.22",
+        "sudo podman --root /var/tmp/flightctl-podman-digest-probe-20261012-tag --runroot /run/flightctl-podman-digest-probe-20261012-tag --storage-driver overlay run -d --name flightctl-podman-digest-probe-20261012-tag --pull=never docker.io/library/alpine:3.22 sleep 300",
+        "sudo podman --root /var/tmp/flightctl-podman-digest-probe-20261012-tag --runroot /run/flightctl-podman-digest-probe-20261012-tag --storage-driver overlay container inspect flightctl-podman-digest-probe-20261012-tag",
+        "sudo podman --root /var/tmp/flightctl-podman-digest-probe-20261012-tag --runroot /run/flightctl-podman-digest-probe-20261012-tag --storage-driver overlay image inspect docker.io/library/alpine:3.22",
+        "sudo podman --root /var/tmp/flightctl-podman-digest-probe-20261012-tag --runroot /run/flightctl-podman-digest-probe-20261012-tag --storage-driver overlay image inspect c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238",
+        "sudo skopeo inspect --raw 'containers-storage:[overlay@/var/tmp/flightctl-podman-digest-probe-20261012-tag+/run/flightctl-podman-digest-probe-20261012-tag]c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238'",
+        "sudo podman --root /var/tmp/flightctl-podman-digest-probe-20261012-tag --runroot /run/flightctl-podman-digest-probe-20261012-tag --storage-driver overlay rm -f flightctl-podman-digest-probe-20261012-tag",
+        "sudo podman --root /var/tmp/flightctl-podman-digest-probe-20261012-tag --runroot /run/flightctl-podman-digest-probe-20261012-tag --storage-driver overlay rmi c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238",
+        "sudo podman --root /var/tmp/flightctl-podman-digest-probe-20261012-tag --runroot /run/flightctl-podman-digest-probe-20261012-tag --storage-driver overlay ps -a --format '{{.Names}}'",
+        "sudo podman --root /var/tmp/flightctl-podman-digest-probe-20261012-tag --runroot /run/flightctl-podman-digest-probe-20261012-tag --storage-driver overlay images --format '{{.ID}}'"
+      ],
+      "container": {
+        "Id": "59aadc03390c5e25dae30fb66207a1c43f6e0f6923428215c8f997174e95cd05",
+        "Name": "flightctl-podman-digest-probe-20261012-tag",
+        "Image": "c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238",
+        "ImageName": "docker.io/library/alpine:3.22",
+        "ImageDigest": "sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8"
+      },
+      "containerState": "running",
+      "imageInspections": {
+        "requestedRef": {
+          "Id": "c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238",
+          "Digest": "sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+          "RepoDigests": [
+            "docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+            "docker.io/library/alpine@sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8"
+          ],
+          "RepoTags": [
+            "docker.io/library/alpine:3.22"
+          ],
+          "ManifestType": "application/vnd.oci.image.manifest.v1+json",
+          "Architecture": "amd64",
+          "Os": "linux"
+        },
+        "containerImageID": {
+          "Id": "c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238",
+          "Digest": "sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8",
+          "RepoDigests": [
+            "docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+            "docker.io/library/alpine@sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8"
+          ],
+          "RepoTags": [
+            "docker.io/library/alpine:3.22"
+          ],
+          "ManifestType": "application/vnd.oci.image.manifest.v1+json",
+          "Architecture": "amd64",
+          "Os": "linux"
+        }
+      },
+      "localRawManifest": {
+        "digest": "sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+        "mediaType": "application/vnd.oci.image.manifest.v1+json",
+        "configDigest": "sha256:c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238"
+      },
+      "cleanup": {
+        "containersEmpty": true,
+        "imagesEmpty": true,
+        "graphrootRemoved": true,
+        "runrootRemoved": true
+      }
+    },
+    {
+      "case": "index",
+      "requestedRef": "docker.io/library/alpine@sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8",
+      "graphroot": "/var/tmp/flightctl-podman-digest-probe-20261012-index",
+      "runroot": "/run/flightctl-podman-digest-probe-20261012-index",
+      "commands": [
+        "sudo podman --root /var/tmp/flightctl-podman-digest-probe-20261012-index --runroot /run/flightctl-podman-digest-probe-20261012-index --storage-driver overlay pull docker.io/library/alpine@sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8",
+        "sudo podman --root /var/tmp/flightctl-podman-digest-probe-20261012-index --runroot /run/flightctl-podman-digest-probe-20261012-index --storage-driver overlay run -d --name flightctl-podman-digest-probe-20261012-index --pull=never docker.io/library/alpine@sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8 sleep 300",
+        "sudo podman --root /var/tmp/flightctl-podman-digest-probe-20261012-index --runroot /run/flightctl-podman-digest-probe-20261012-index --storage-driver overlay container inspect flightctl-podman-digest-probe-20261012-index",
+        "sudo podman --root /var/tmp/flightctl-podman-digest-probe-20261012-index --runroot /run/flightctl-podman-digest-probe-20261012-index --storage-driver overlay image inspect docker.io/library/alpine@sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8",
+        "sudo podman --root /var/tmp/flightctl-podman-digest-probe-20261012-index --runroot /run/flightctl-podman-digest-probe-20261012-index --storage-driver overlay image inspect c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238",
+        "sudo skopeo inspect --raw 'containers-storage:[overlay@/var/tmp/flightctl-podman-digest-probe-20261012-index+/run/flightctl-podman-digest-probe-20261012-index]c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238'",
+        "sudo podman --root /var/tmp/flightctl-podman-digest-probe-20261012-index --runroot /run/flightctl-podman-digest-probe-20261012-index --storage-driver overlay rm -f flightctl-podman-digest-probe-20261012-index",
+        "sudo podman --root /var/tmp/flightctl-podman-digest-probe-20261012-index --runroot /run/flightctl-podman-digest-probe-20261012-index --storage-driver overlay rmi c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238",
+        "sudo podman --root /var/tmp/flightctl-podman-digest-probe-20261012-index --runroot /run/flightctl-podman-digest-probe-20261012-index --storage-driver overlay ps -a --format '{{.Names}}'",
+        "sudo podman --root /var/tmp/flightctl-podman-digest-probe-20261012-index --runroot /run/flightctl-podman-digest-probe-20261012-index --storage-driver overlay images --format '{{.ID}}'"
+      ],
+      "container": {
+        "Id": "14d76ec15b579e8ea362fe689d1fd84a8af2fb4787dc05068d4fc177d8ec3ad8",
+        "Name": "flightctl-podman-digest-probe-20261012-index",
+        "Image": "c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238",
+        "ImageName": "docker.io/library/alpine@sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8",
+        "ImageDigest": "sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8"
+      },
+      "containerState": "running",
+      "imageInspections": {
+        "requestedRef": {
+          "Id": "c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238",
+          "Digest": "sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8",
+          "RepoDigests": [
+            "docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+            "docker.io/library/alpine@sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8"
+          ],
+          "RepoTags": [],
+          "ManifestType": "application/vnd.oci.image.manifest.v1+json",
+          "Architecture": "amd64",
+          "Os": "linux"
+        },
+        "containerImageID": {
+          "Id": "c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238",
+          "Digest": "sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8",
+          "RepoDigests": [
+            "docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+            "docker.io/library/alpine@sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8"
+          ],
+          "RepoTags": [],
+          "ManifestType": "application/vnd.oci.image.manifest.v1+json",
+          "Architecture": "amd64",
+          "Os": "linux"
+        }
+      },
+      "localRawManifest": {
+        "digest": "sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+        "mediaType": "application/vnd.oci.image.manifest.v1+json",
+        "configDigest": "sha256:c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238"
+      },
+      "cleanup": {
+        "containersEmpty": true,
+        "imagesEmpty": true,
+        "graphrootRemoved": true,
+        "runrootRemoved": true
+      }
+    },
+    {
+      "case": "platform",
+      "requestedRef": "docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+      "graphroot": "/var/tmp/flightctl-podman-digest-probe-20261012-platform",
+      "runroot": "/run/flightctl-podman-digest-probe-20261012-platform",
+      "commands": [
+        "sudo podman --root /var/tmp/flightctl-podman-digest-probe-20261012-platform --runroot /run/flightctl-podman-digest-probe-20261012-platform --storage-driver overlay pull docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+        "sudo podman --root /var/tmp/flightctl-podman-digest-probe-20261012-platform --runroot /run/flightctl-podman-digest-probe-20261012-platform --storage-driver overlay run -d --name flightctl-podman-digest-probe-20261012-platform --pull=never docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764 sleep 300",
+        "sudo podman --root /var/tmp/flightctl-podman-digest-probe-20261012-platform --runroot /run/flightctl-podman-digest-probe-20261012-platform --storage-driver overlay container inspect flightctl-podman-digest-probe-20261012-platform",
+        "sudo podman --root /var/tmp/flightctl-podman-digest-probe-20261012-platform --runroot /run/flightctl-podman-digest-probe-20261012-platform --storage-driver overlay image inspect docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+        "sudo podman --root /var/tmp/flightctl-podman-digest-probe-20261012-platform --runroot /run/flightctl-podman-digest-probe-20261012-platform --storage-driver overlay image inspect c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238",
+        "sudo skopeo inspect --raw 'containers-storage:[overlay@/var/tmp/flightctl-podman-digest-probe-20261012-platform+/run/flightctl-podman-digest-probe-20261012-platform]c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238'",
+        "sudo podman --root /var/tmp/flightctl-podman-digest-probe-20261012-platform --runroot /run/flightctl-podman-digest-probe-20261012-platform --storage-driver overlay rm -f flightctl-podman-digest-probe-20261012-platform",
+        "sudo podman --root /var/tmp/flightctl-podman-digest-probe-20261012-platform --runroot /run/flightctl-podman-digest-probe-20261012-platform --storage-driver overlay rmi c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238",
+        "sudo podman --root /var/tmp/flightctl-podman-digest-probe-20261012-platform --runroot /run/flightctl-podman-digest-probe-20261012-platform --storage-driver overlay ps -a --format '{{.Names}}'",
+        "sudo podman --root /var/tmp/flightctl-podman-digest-probe-20261012-platform --runroot /run/flightctl-podman-digest-probe-20261012-platform --storage-driver overlay images --format '{{.ID}}'"
+      ],
+      "container": {
+        "Id": "e0754326b7cbf1d95d5a6262c6036d7206ddc43ea8ea42a15b4763e954fc9967",
+        "Name": "flightctl-podman-digest-probe-20261012-platform",
+        "Image": "c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238",
+        "ImageName": "docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+        "ImageDigest": "sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764"
+      },
+      "containerState": "running",
+      "imageInspections": {
+        "requestedRef": {
+          "Id": "c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238",
+          "Digest": "sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+          "RepoDigests": [
+            "docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764"
+          ],
+          "RepoTags": [],
+          "ManifestType": "application/vnd.oci.image.manifest.v1+json",
+          "Architecture": "amd64",
+          "Os": "linux"
+        },
+        "containerImageID": {
+          "Id": "c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238",
+          "Digest": "sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+          "RepoDigests": [
+            "docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764"
+          ],
+          "RepoTags": [],
+          "ManifestType": "application/vnd.oci.image.manifest.v1+json",
+          "Architecture": "amd64",
+          "Os": "linux"
+        }
+      },
+      "localRawManifest": {
+        "digest": "sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+        "mediaType": "application/vnd.oci.image.manifest.v1+json",
+        "configDigest": "sha256:c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238"
+      },
+      "cleanup": {
+        "containersEmpty": true,
+        "imagesEmpty": true,
+        "graphrootRemoved": true,
+        "runrootRemoved": true
+      }
+    }
+  ],
+  "agentActiveAfter": "active",
+  "defaultRootContainersAfter": "",
+  "defaultRootImagesAfter": "",
+  "storageDriver": "overlay",
+  "storageIsolation": "Fresh separate rootful graphroot and runroot for each case; each case removed before next case."
+}

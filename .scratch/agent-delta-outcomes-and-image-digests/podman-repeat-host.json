@@ -1,0 +1,422 @@
+{
+  "podmanVersion": "5.8.7",
+  "mode": "rootless, fresh vfs store per case",
+  "registry": {
+    "indexDigest": "sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8",
+    "platformDigest": "sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+    "configDigest": "sha256:c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238"
+  },
+  "cases": [
+    {
+      "case": "tagged",
+      "reference": "docker.io/library/alpine:3.22",
+      "freshStorage": true,
+      "container": {
+        "Image": "c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238",
+        "ImageName": "docker.io/library/alpine:3.22",
+        "ImageDigest": "sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8",
+        "running": true
+      },
+      "imageByReference": {
+        "Id": "c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238",
+        "Digest": "sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+        "RepoDigests": [
+          "docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+          "docker.io/library/alpine@sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8"
+        ],
+        "ManifestType": "application/vnd.oci.image.manifest.v1+json",
+        "Os": "linux",
+        "Architecture": "amd64"
+      },
+      "imageByContainerID": {
+        "Id": "c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238",
+        "Digest": "sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8",
+        "RepoDigests": [
+          "docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+          "docker.io/library/alpine@sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8"
+        ],
+        "ManifestType": "application/vnd.oci.image.manifest.v1+json",
+        "Os": "linux",
+        "Architecture": "amd64"
+      },
+      "localRawManifestDigest": "sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+      "localRawManifestMediaType": "application/vnd.oci.image.manifest.v1+json",
+      "cleanupComplete": true
+    },
+    {
+      "case": "index-pinned",
+      "reference": "docker.io/library/alpine@sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8",
+      "freshStorage": true,
+      "container": {
+        "Image": "c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238",
+        "ImageName": "docker.io/library/alpine@sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8",
+        "ImageDigest": "sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8",
+        "running": true
+      },
+      "imageByReference": {
+        "Id": "c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238",
+        "Digest": "sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8",
+        "RepoDigests": [
+          "docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+          "docker.io/library/alpine@sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8"
+        ],
+        "ManifestType": "application/vnd.oci.image.manifest.v1+json",
+        "Os": "linux",
+        "Architecture": "amd64"
+      },
+      "imageByContainerID": {
+        "Id": "c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238",
+        "Digest": "sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8",
+        "RepoDigests": [
+          "docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+          "docker.io/library/alpine@sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8"
+        ],
+        "ManifestType": "application/vnd.oci.image.manifest.v1+json",
+        "Os": "linux",
+        "Architecture": "amd64"
+      },
+      "localRawManifestDigest": "sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+      "localRawManifestMediaType": "application/vnd.oci.image.manifest.v1+json",
+      "cleanupComplete": true
+    },
+    {
+      "case": "platform-pinned",
+      "reference": "docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+      "freshStorage": true,
+      "container": {
+        "Image": "c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238",
+        "ImageName": "docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+        "ImageDigest": "sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+        "running": true
+      },
+      "imageByReference": {
+        "Id": "c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238",
+        "Digest": "sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+        "RepoDigests": [
+          "docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764"
+        ],
+        "ManifestType": "application/vnd.oci.image.manifest.v1+json",
+        "Os": "linux",
+        "Architecture": "amd64"
+      },
+      "imageByContainerID": {
+        "Id": "c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238",
+        "Digest": "sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+        "RepoDigests": [
+          "docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764"
+        ],
+        "ManifestType": "application/vnd.oci.image.manifest.v1+json",
+        "Os": "linux",
+        "Architecture": "amd64"
+      },
+      "localRawManifestDigest": "sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+      "localRawManifestMediaType": "application/vnd.oci.image.manifest.v1+json",
+      "cleanupComplete": true
+    }
+  ],
+  "commands": [
+    [
+      "skopeo",
+      "inspect",
+      "--raw",
+      "docker://docker.io/library/alpine:3.22"
+    ],
+    [
+      "skopeo",
+      "inspect",
+      "--raw",
+      "docker://docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764"
+    ],
+    [
+      "podman",
+      "version",
+      "--format",
+      "{{.Client.Version}}"
+    ],
+    [
+      "podman",
+      "--root",
+      "/tmp/flightctl-podman-repeat-tagged-tmm5mhym/storage",
+      "--runroot",
+      "/tmp/flightctl-podman-repeat-tagged-tmm5mhym/run",
+      "--storage-driver",
+      "vfs",
+      "pull",
+      "docker.io/library/alpine:3.22"
+    ],
+    [
+      "podman",
+      "--root",
+      "/tmp/flightctl-podman-repeat-tagged-tmm5mhym/storage",
+      "--runroot",
+      "/tmp/flightctl-podman-repeat-tagged-tmm5mhym/run",
+      "--storage-driver",
+      "vfs",
+      "run",
+      "-d",
+      "--name",
+      "digest-probe",
+      "--network",
+      "none",
+      "--pull",
+      "never",
+      "docker.io/library/alpine:3.22",
+      "sleep",
+      "300"
+    ],
+    [
+      "podman",
+      "--root",
+      "/tmp/flightctl-podman-repeat-tagged-tmm5mhym/storage",
+      "--runroot",
+      "/tmp/flightctl-podman-repeat-tagged-tmm5mhym/run",
+      "--storage-driver",
+      "vfs",
+      "container",
+      "inspect",
+      "digest-probe"
+    ],
+    [
+      "podman",
+      "--root",
+      "/tmp/flightctl-podman-repeat-tagged-tmm5mhym/storage",
+      "--runroot",
+      "/tmp/flightctl-podman-repeat-tagged-tmm5mhym/run",
+      "--storage-driver",
+      "vfs",
+      "image",
+      "inspect",
+      "docker.io/library/alpine:3.22"
+    ],
+    [
+      "podman",
+      "--root",
+      "/tmp/flightctl-podman-repeat-tagged-tmm5mhym/storage",
+      "--runroot",
+      "/tmp/flightctl-podman-repeat-tagged-tmm5mhym/run",
+      "--storage-driver",
+      "vfs",
+      "image",
+      "inspect",
+      "c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238"
+    ],
+    [
+      "podman",
+      "unshare",
+      "skopeo",
+      "inspect",
+      "--raw",
+      "containers-storage:[vfs@/tmp/flightctl-podman-repeat-tagged-tmm5mhym/storage+/tmp/flightctl-podman-repeat-tagged-tmm5mhym/run]c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238"
+    ],
+    [
+      "podman",
+      "--root",
+      "/tmp/flightctl-podman-repeat-tagged-tmm5mhym/storage",
+      "--runroot",
+      "/tmp/flightctl-podman-repeat-tagged-tmm5mhym/run",
+      "--storage-driver",
+      "vfs",
+      "ps",
+      "-a",
+      "--format",
+      "json"
+    ],
+    [
+      "podman",
+      "unshare",
+      "rm",
+      "-rf",
+      "/tmp/flightctl-podman-repeat-tagged-tmm5mhym"
+    ],
+    [
+      "podman",
+      "--root",
+      "/tmp/flightctl-podman-repeat-index-pinned-0_pj0_u8/storage",
+      "--runroot",
+      "/tmp/flightctl-podman-repeat-index-pinned-0_pj0_u8/run",
+      "--storage-driver",
+      "vfs",
+      "pull",
+      "docker.io/library/alpine@sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8"
+    ],
+    [
+      "podman",
+      "--root",
+      "/tmp/flightctl-podman-repeat-index-pinned-0_pj0_u8/storage",
+      "--runroot",
+      "/tmp/flightctl-podman-repeat-index-pinned-0_pj0_u8/run",
+      "--storage-driver",
+      "vfs",
+      "run",
+      "-d",
+      "--name",
+      "digest-probe",
+      "--network",
+      "none",
+      "--pull",
+      "never",
+      "docker.io/library/alpine@sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8",
+      "sleep",
+      "300"
+    ],
+    [
+      "podman",
+      "--root",
+      "/tmp/flightctl-podman-repeat-index-pinned-0_pj0_u8/storage",
+      "--runroot",
+      "/tmp/flightctl-podman-repeat-index-pinned-0_pj0_u8/run",
+      "--storage-driver",
+      "vfs",
+      "container",
+      "inspect",
+      "digest-probe"
+    ],
+    [
+      "podman",
+      "--root",
+      "/tmp/flightctl-podman-repeat-index-pinned-0_pj0_u8/storage",
+      "--runroot",
+      "/tmp/flightctl-podman-repeat-index-pinned-0_pj0_u8/run",
+      "--storage-driver",
+      "vfs",
+      "image",
+      "inspect",
+      "docker.io/library/alpine@sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8"
+    ],
+    [
+      "podman",
+      "--root",
+      "/tmp/flightctl-podman-repeat-index-pinned-0_pj0_u8/storage",
+      "--runroot",
+      "/tmp/flightctl-podman-repeat-index-pinned-0_pj0_u8/run",
+      "--storage-driver",
+      "vfs",
+      "image",
+      "inspect",
+      "c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238"
+    ],
+    [
+      "podman",
+      "unshare",
+      "skopeo",
+      "inspect",
+      "--raw",
+      "containers-storage:[vfs@/tmp/flightctl-podman-repeat-index-pinned-0_pj0_u8/storage+/tmp/flightctl-podman-repeat-index-pinned-0_pj0_u8/run]c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238"
+    ],
+    [
+      "podman",
+      "--root",
+      "/tmp/flightctl-podman-repeat-index-pinned-0_pj0_u8/storage",
+      "--runroot",
+      "/tmp/flightctl-podman-repeat-index-pinned-0_pj0_u8/run",
+      "--storage-driver",
+      "vfs",
+      "ps",
+      "-a",
+      "--format",
+      "json"
+    ],
+    [
+      "podman",
+      "unshare",
+      "rm",
+      "-rf",
+      "/tmp/flightctl-podman-repeat-index-pinned-0_pj0_u8"
+    ],
+    [
+      "podman",
+      "--root",
+      "/tmp/flightctl-podman-repeat-platform-pinned-7n2yyx8t/storage",
+      "--runroot",
+      "/tmp/flightctl-podman-repeat-platform-pinned-7n2yyx8t/run",
+      "--storage-driver",
+      "vfs",
+      "pull",
+      "docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764"
+    ],
+    [
+      "podman",
+      "--root",
+      "/tmp/flightctl-podman-repeat-platform-pinned-7n2yyx8t/storage",
+      "--runroot",
+      "/tmp/flightctl-podman-repeat-platform-pinned-7n2yyx8t/run",
+      "--storage-driver",
+      "vfs",
+      "run",
+      "-d",
+      "--name",
+      "digest-probe",
+      "--network",
+      "none",
+      "--pull",
+      "never",
+      "docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+      "sleep",
+      "300"
+    ],
+    [
+      "podman",
+      "--root",
+      "/tmp/flightctl-podman-repeat-platform-pinned-7n2yyx8t/storage",
+      "--runroot",
+      "/tmp/flightctl-podman-repeat-platform-pinned-7n2yyx8t/run",
+      "--storage-driver",
+      "vfs",
+      "container",
+      "inspect",
+      "digest-probe"
+    ],
+    [
+      "podman",
+      "--root",
+      "/tmp/flightctl-podman-repeat-platform-pinned-7n2yyx8t/storage",
+      "--runroot",
+      "/tmp/flightctl-podman-repeat-platform-pinned-7n2yyx8t/run",
+      "--storage-driver",
+      "vfs",
+      "image",
+      "inspect",
+      "docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764"
+    ],
+    [
+      "podman",
+      "--root",
+      "/tmp/flightctl-podman-repeat-platform-pinned-7n2yyx8t/storage",
+      "--runroot",
+      "/tmp/flightctl-podman-repeat-platform-pinned-7n2yyx8t/run",
+      "--storage-driver",
+      "vfs",
+      "image",
+      "inspect",
+      "c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238"
+    ],
+    [
+      "podman",
+      "unshare",
+      "skopeo",
+      "inspect",
+      "--raw",
+      "containers-storage:[vfs@/tmp/flightctl-podman-repeat-platform-pinned-7n2yyx8t/storage+/tmp/flightctl-podman-repeat-platform-pinned-7n2yyx8t/run]c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238"
+    ],
+    [
+      "podman",
+      "--root",
+      "/tmp/flightctl-podman-repeat-platform-pinned-7n2yyx8t/storage",
+      "--runroot",
+      "/tmp/flightctl-podman-repeat-platform-pinned-7n2yyx8t/run",
+      "--storage-driver",
+      "vfs",
+      "ps",
+      "-a",
+      "--format",
+      "json"
+    ],
+    [
+      "podman",
+      "unshare",
+      "rm",
+      "-rf",
+      "/tmp/flightctl-podman-repeat-platform-pinned-7n2yyx8t"
+    ]
+  ]
+}

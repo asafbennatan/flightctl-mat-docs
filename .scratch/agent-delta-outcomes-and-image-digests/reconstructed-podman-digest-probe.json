@@ -1,0 +1,44 @@
+{
+  "runtime": "VM Podman 5.8.5, oci-delta installed RPM",
+  "source": "docker.io/library/alpine:3.21",
+  "target": "docker.io/library/alpine:3.22",
+  "targetPlatformDigest": "sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+  "reconstructedManifestDigest": "sha256:1ea478bc4da50dfb0c466db6d757ba28980b0a029139091c3bf525184b699022",
+  "reconstructedImage": {
+    "Id": "40d59e564925f392078385fbb0723205c6216ccf3d84c1d3446bde1daf621a06",
+    "Digest": "sha256:1ea478bc4da50dfb0c466db6d757ba28980b0a029139091c3bf525184b699022",
+    "RepoTags": [
+      "localhost/flightctl-reconstructed-probe:target"
+    ],
+    "RepoDigests": [
+      "localhost/flightctl-reconstructed-probe@sha256:1ea478bc4da50dfb0c466db6d757ba28980b0a029139091c3bf525184b699022"
+    ]
+  },
+  "reconstructedContainer": {
+    "Image": "40d59e564925f392078385fbb0723205c6216ccf3d84c1d3446bde1daf621a06",
+    "ImageName": "localhost/flightctl-reconstructed-probe:target",
+    "ImageDigest": "sha256:1ea478bc4da50dfb0c466db6d757ba28980b0a029139091c3bf525184b699022"
+  },
+  "canonicalRefreshImage": {
+    "Id": "c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238",
+    "Digest": "sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+    "RepoTags": [
+      "docker.io/library/alpine:3.22"
+    ],
+    "RepoDigests": [
+      "docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+      "docker.io/library/alpine@sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8"
+    ]
+  },
+  "canonicalRefreshContainer": {
+    "Image": "c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238",
+    "ImageName": "docker.io/library/alpine:3.22",
+    "ImageDigest": "sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8"
+  },
+  "commands": "skopeo copy source and target to OCI layouts; create --jobs 1; import --container-storage isolated-root; podman run --network=none; hash raw stored manifest; pull canonical target; run and inspect refreshed container",
+  "cleanup": "Unique temporary CONTAINERS_STORAGE_CONF isolated root/runroot; all probe containers removed and temporary directory deleted. Active VM OS/agent configuration unchanged.",
+  "limits": [
+    "Tests actual delta reconstruction and canonical refresh with running Podman workloads.",
+    "Does not establish CRI reconstructed image behavior or multi-platform bootc behavior."
+  ]
+}

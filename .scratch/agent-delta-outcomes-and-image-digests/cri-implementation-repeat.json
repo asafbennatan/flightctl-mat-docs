@@ -1,0 +1,120 @@
+{
+  "clusterImage": "quay.io/minc-org/minc@sha256:439aee94413acd5143dd1afb390bfb1d679ebdc62073dbc2dfea9c7c1383be0c",
+  "container": "flightctl-cri-ticket07-repeat",
+  "volume": "flightctl-cri-ticket07-repeat-storage",
+  "startedAt": "2026-10-12T04:31:16Z",
+  "clusterImagePresentBefore": false,
+  "versions": "microshift-4.19.0_0.nightly_2025_08_28_080135_20250902035702_005e05c71_dirty-1.el9.x86_64\ncri-o-1.32.8-2.rhaos4.19.git6140265.el9.x86_64\ncri-tools-1.32.0-2.el9.x86_64\n",
+  "verifiedPlatformDigest": "sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+  "verifiedConfigDigest": "sha256:c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238",
+  "success": true,
+  "cleanup": {
+    "containers": "",
+    "volumes": "",
+    "agent": "active",
+    "newClusterImageRemoved": true
+  },
+  "probes": [
+    {
+      "pod": "tagged",
+      "declaredImage": "docker.io/library/alpine:3.22",
+      "phase": "Running",
+      "containerStatuses": [
+        {
+          "name": "probe",
+          "image": "docker.io/library/alpine:3.22",
+          "imageID": "docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+          "containerID": "cri-o://93961e0ab5833786ec5fd06bd8798347832a97fbb6a0a8ae1db2e42c7a07adcb",
+          "ready": true,
+          "state": {
+            "running": {
+              "startedAt": "2026-10-12T04:33:46Z"
+            }
+          }
+        }
+      ],
+      "criContainerStatus": {
+        "id": "93961e0ab5833786ec5fd06bd8798347832a97fbb6a0a8ae1db2e42c7a07adcb",
+        "state": "CONTAINER_RUNNING",
+        "image": {
+          "annotations": {},
+          "image": "docker.io/library/alpine:3.22",
+          "runtimeHandler": "",
+          "userSpecifiedImage": ""
+        },
+        "imageRef": "docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764"
+      }
+    },
+    {
+      "pod": "index-pinned",
+      "declaredImage": "docker.io/library/alpine@sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8",
+      "phase": "Running",
+      "containerStatuses": [
+        {
+          "name": "probe",
+          "image": "docker.io/library/alpine:3.22",
+          "imageID": "docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+          "containerID": "cri-o://c805850d26c2011c28d19314bc2f3041af5f1e7c5c1939bbab3abadf7541908c",
+          "ready": true,
+          "state": {
+            "running": {
+              "startedAt": "2026-10-12T04:33:46Z"
+            }
+          }
+        }
+      ],
+      "criContainerStatus": {
+        "id": "c805850d26c2011c28d19314bc2f3041af5f1e7c5c1939bbab3abadf7541908c",
+        "state": "CONTAINER_RUNNING",
+        "image": {
+          "annotations": {},
+          "image": "docker.io/library/alpine:3.22",
+          "runtimeHandler": "",
+          "userSpecifiedImage": ""
+        },
+        "imageRef": "docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764"
+      }
+    },
+    {
+      "pod": "platform-pinned",
+      "declaredImage": "docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+      "phase": "Running",
+      "containerStatuses": [
+        {
+          "name": "probe",
+          "image": "docker.io/library/alpine:3.22",
+          "imageID": "docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+          "containerID": "cri-o://8d2dc419def7cfa495a9ac9918012d0156d262bca0d2dfb49cd25660a7fe63e0",
+          "ready": true,
+          "state": {
+            "running": {
+              "startedAt": "2026-10-12T04:33:46Z"
+            }
+          }
+        }
+      ],
+      "criContainerStatus": {
+        "id": "8d2dc419def7cfa495a9ac9918012d0156d262bca0d2dfb49cd25660a7fe63e0",
+        "state": "CONTAINER_RUNNING",
+        "image": {
+          "annotations": {},
+          "image": "docker.io/library/alpine:3.22",
+          "runtimeHandler": "",
+          "userSpecifiedImage": ""
+        },
+        "imageRef": "docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764"
+      }
+    }
+  ],
+  "commands": {
+    "launch": "sudo podman run -d -it --privileged --systemd=always --memory=1500m --memory-swap=3g --hostname 127.0.0.1.nip.io -p 127.0.0.1:16443:6443 -v <isolated-volume>:/host-container --name <probe> <pinned-MINC-image>",
+    "podObservation": "kubectl get pods tagged index-pinned platform-pinned -o json",
+    "criObservation": "crictl inspect <observed-container-id>",
+    "registryObservation": "skopeo inspect --raw docker://docker.io/library/alpine@<observed-platform-digest>"
+  },
+  "verificationGaps": [
+    "No containerd environment is available.",
+    "Repository MicroShift 4.21 is not the tested 4.19 container version.",
+    "Opaque image ID inspection is covered by status tests; live CRI-O emitted repository-qualified image IDs."
+  ]
+}

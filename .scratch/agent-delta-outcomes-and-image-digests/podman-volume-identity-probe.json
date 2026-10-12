@@ -1,0 +1,134 @@
+{
+  "commands": [
+    [
+      "podman",
+      "--root",
+      "/tmp/flightctl-ticket10-volume-bs1io9sg/storage",
+      "--runroot",
+      "/tmp/flightctl-ticket10-volume-bs1io9sg/run",
+      "--storage-driver",
+      "vfs",
+      "pull",
+      "docker.io/library/alpine:3.22"
+    ],
+    [
+      "podman",
+      "--root",
+      "/tmp/flightctl-ticket10-volume-bs1io9sg/storage",
+      "--runroot",
+      "/tmp/flightctl-ticket10-volume-bs1io9sg/run",
+      "--storage-driver",
+      "vfs",
+      "volume",
+      "create",
+      "--driver",
+      "image",
+      "--opt",
+      "image=docker.io/library/alpine:3.22",
+      "ticket10-image-volume"
+    ],
+    [
+      "podman",
+      "--root",
+      "/tmp/flightctl-ticket10-volume-bs1io9sg/storage",
+      "--runroot",
+      "/tmp/flightctl-ticket10-volume-bs1io9sg/run",
+      "--storage-driver",
+      "vfs",
+      "volume",
+      "inspect",
+      "ticket10-image-volume"
+    ],
+    [
+      "podman",
+      "--root",
+      "/tmp/flightctl-ticket10-volume-bs1io9sg/storage",
+      "--runroot",
+      "/tmp/flightctl-ticket10-volume-bs1io9sg/run",
+      "--storage-driver",
+      "vfs",
+      "image",
+      "inspect",
+      "45f91b48696eb5346747acabac0f83d54d8a59ce4a698395ce588e6df46bfd17"
+    ],
+    [
+      "podman",
+      "--root",
+      "/tmp/flightctl-ticket10-volume-bs1io9sg/storage",
+      "--runroot",
+      "/tmp/flightctl-ticket10-volume-bs1io9sg/run",
+      "--storage-driver",
+      "vfs",
+      "volume",
+      "inspect",
+      "ticket10-image-volume",
+      "--format",
+      "{{.StorageImageID}}"
+    ],
+    [
+      "podman",
+      "--root",
+      "/tmp/flightctl-ticket10-volume-bs1io9sg/storage",
+      "--runroot",
+      "/tmp/flightctl-ticket10-volume-bs1io9sg/run",
+      "--storage-driver",
+      "vfs",
+      "volume",
+      "rm",
+      "-f",
+      "ticket10-image-volume"
+    ],
+    [
+      "podman",
+      "--root",
+      "/tmp/flightctl-ticket10-volume-bs1io9sg/storage",
+      "--runroot",
+      "/tmp/flightctl-ticket10-volume-bs1io9sg/run",
+      "--storage-driver",
+      "vfs",
+      "volume",
+      "ls",
+      "--format",
+      "json"
+    ],
+    [
+      "podman",
+      "unshare",
+      "rm",
+      "-rf",
+      "/tmp/flightctl-ticket10-volume-bs1io9sg"
+    ]
+  ],
+  "pullImageID": "c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238",
+  "create": {
+    "exitCode": 0,
+    "stderr": ""
+  },
+  "volume": {
+    "Name": "ticket10-image-volume",
+    "Driver": "image",
+    "Mountpoint": "/tmp/flightctl-ticket10-volume-bs1io9sg/storage/volumes/ticket10-image-volume/_data",
+    "CreatedAt": "2026-10-12T07:35:09.266371136+03:00",
+    "Labels": {},
+    "Scope": "local",
+    "Options": {
+      "image": "docker.io/library/alpine:3.22"
+    },
+    "MountCount": 0,
+    "NeedsCopyUp": true,
+    "NeedsChown": true,
+    "StorageID": "45f91b48696eb5346747acabac0f83d54d8a59ce4a698395ce588e6df46bfd17",
+    "LockNumber": 23
+  },
+  "storageIDAsImage": {
+    "exitCode": 125,
+    "stdout": "[]\n",
+    "stderr": "Error: 45f91b48696eb5346747acabac0f83d54d8a59ce4a698395ce588e6df46bfd17: image not known\n"
+  },
+  "storageImageIDField": {
+    "exitCode": 125,
+    "stdout": "",
+    "stderr": "Error: template: inspect:1:13: executing \"inspect\" at <.StorageImageID>: can't evaluate field StorageImageID in type interface {}\n"
+  },
+  "cleanupComplete": true
+}

@@ -1,0 +1,264 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-12T04:46:40.554152+00:00",
+  "runtime": {
+    "bootcBefore": "1.16.13",
+    "bootcAfter": "1.16.13",
+    "architecture": "amd64",
+    "updatedOS": "CentOS Stream 9",
+    "memoryMiB": 2048,
+    "guestfish": "guestfish 1.60.1fedora=44,release=2.fc44,libvirt"
+  },
+  "isolation": {
+    "baseDisk": "/home/abennata/dev/flightctl/bin/output/qcow2/disk.qcow2",
+    "privateQCOW2Overlay": "/home/abennata/.local/share/flightctl/bootc-probe-20261012/flightctl-bootc-identity-probe-20261012-disk.qcow2",
+    "domain": "flightctl-bootc-identity-probe-20261012",
+    "sshPort": 2236,
+    "offlineAgentMaskVerified": true,
+    "offlineMaskPaths": [
+      "/etc/systemd/system/flightctl-agent.service",
+      "/ostree/deploy/default/deploy/7793a777f2fbde5bb7ff2fbee8f767e845fef09faec88a7d5b8f72b2f0fc6e61.0/etc/systemd/system/flightctl-agent.service"
+    ],
+    "maskDestination": "/dev/null",
+    "agentBeforeAndAfter": "masked/inactive",
+    "initialAgentJournal": "No entries",
+    "hostOrOriginalVMConfigurationChanged": false,
+    "registryPublicationPerformed": false
+  },
+  "registry": {
+    "reference": "quay.io/centos-bootc/centos-bootc@sha256:c3cdaf690807f101fc26207a35fb9fa5871620cb450d02b89041e2189be4a33b",
+    "indexDigest": "sha256:c3cdaf690807f101fc26207a35fb9fa5871620cb450d02b89041e2189be4a33b",
+    "indexMediaType": "application/vnd.oci.image.index.v1+json",
+    "architectures": [
+      "amd64",
+      "arm64",
+      "ppc64le",
+      "s390x"
+    ],
+    "selectedPlatformManifestDigest": "sha256:0856c40f21e38182a3a80faea5978fd3d4931d215def63b3237a498bcf52fe0a",
+    "selectedPlatform": {
+      "architecture": "amd64",
+      "os": "linux"
+    },
+    "platformConfigDigest": "sha256:f8b739eb96452d4976ba6db9f94a84d5712db68d935d9ec3d1506a5450daa8bd",
+    "compressedLayerBytes": 1240984892,
+    "rawHashesVerified": true
+  },
+  "initial": {
+    "apiVersion": "org.containers.bootc/v1",
+    "kind": "BootcHost",
+    "metadata": {
+      "name": "host"
+    },
+    "spec": {
+      "bootOrder": "default",
+      "image": {
+        "image": "quay.io/flightctl/flightctl-device:base-cs9-bootc-v1.4.0-main-191-gb3bb4d485",
+        "transport": "registry"
+      }
+    },
+    "status": {
+      "booted": {
+        "cachedUpdate": null,
+        "composefs": null,
+        "downloadOnly": false,
+        "image": {
+          "architecture": "amd64",
+          "image": {
+            "image": "quay.io/flightctl/flightctl-device:base-cs9-bootc-v1.4.0-main-191-gb3bb4d485",
+            "transport": "registry"
+          },
+          "imageDigest": "sha256:e861c823c7cb3d6fc1dea9e90d4c6d2e87a57b99d488167efa4e9c527515cceb",
+          "timestamp": "2026-09-28T21:30:43Z",
+          "version": "v1.4.0-main-191-gb3bb4d485"
+        },
+        "incompatible": false,
+        "ostree": {
+          "checksum": "7793a777f2fbde5bb7ff2fbee8f767e845fef09faec88a7d5b8f72b2f0fc6e61",
+          "deploySerial": 0,
+          "stateroot": "default"
+        },
+        "pinned": false,
+        "softRebootCapable": false,
+        "store": "ostreeContainer"
+      },
+      "readOnly": false,
+      "rollback": null,
+      "rollbackQueued": false,
+      "staged": null,
+      "type": "bootcHost",
+      "usrOverlay": null
+    }
+  },
+  "afterStagingBeforeReboot": {
+    "apiVersion": "org.containers.bootc/v1",
+    "kind": "BootcHost",
+    "metadata": {
+      "name": "host"
+    },
+    "spec": {
+      "bootOrder": "default",
+      "image": {
+        "image": "quay.io/centos-bootc/centos-bootc@sha256:c3cdaf690807f101fc26207a35fb9fa5871620cb450d02b89041e2189be4a33b",
+        "transport": "registry"
+      }
+    },
+    "status": {
+      "booted": {
+        "cachedUpdate": null,
+        "composefs": null,
+        "downloadOnly": false,
+        "image": {
+          "architecture": "amd64",
+          "image": {
+            "image": "quay.io/flightctl/flightctl-device:base-cs9-bootc-v1.4.0-main-191-gb3bb4d485",
+            "transport": "registry"
+          },
+          "imageDigest": "sha256:e861c823c7cb3d6fc1dea9e90d4c6d2e87a57b99d488167efa4e9c527515cceb",
+          "timestamp": "2026-09-28T21:30:43Z",
+          "version": "v1.4.0-main-191-gb3bb4d485"
+        },
+        "incompatible": false,
+        "ostree": {
+          "checksum": "7793a777f2fbde5bb7ff2fbee8f767e845fef09faec88a7d5b8f72b2f0fc6e61",
+          "deploySerial": 0,
+          "stateroot": "default"
+        },
+        "pinned": false,
+        "softRebootCapable": false,
+        "store": "ostreeContainer"
+      },
+      "readOnly": false,
+      "rollback": null,
+      "rollbackQueued": false,
+      "staged": {
+        "cachedUpdate": null,
+        "composefs": null,
+        "downloadOnly": false,
+        "image": {
+          "architecture": "amd64",
+          "image": {
+            "image": "quay.io/centos-bootc/centos-bootc@sha256:c3cdaf690807f101fc26207a35fb9fa5871620cb450d02b89041e2189be4a33b",
+            "transport": "registry"
+          },
+          "imageDigest": "sha256:0856c40f21e38182a3a80faea5978fd3d4931d215def63b3237a498bcf52fe0a",
+          "timestamp": "2026-10-11T21:25:10Z",
+          "version": "9"
+        },
+        "incompatible": false,
+        "ostree": {
+          "checksum": "5dfd069e2d736fce21666fe742377fdf03623262e9493129a527624521c0b18d",
+          "deploySerial": 0,
+          "stateroot": "default"
+        },
+        "pinned": false,
+        "softRebootCapable": false,
+        "store": "ostreeContainer"
+      },
+      "type": "bootcHost",
+      "usrOverlay": null
+    }
+  },
+  "afterTargetBoot": {
+    "apiVersion": "org.containers.bootc/v1",
+    "kind": "BootcHost",
+    "metadata": {
+      "name": "host"
+    },
+    "spec": {
+      "bootOrder": "default",
+      "image": {
+        "image": "quay.io/centos-bootc/centos-bootc@sha256:c3cdaf690807f101fc26207a35fb9fa5871620cb450d02b89041e2189be4a33b",
+        "transport": "registry"
+      }
+    },
+    "status": {
+      "booted": {
+        "cachedUpdate": null,
+        "composefs": null,
+        "downloadOnly": false,
+        "image": {
+          "architecture": "amd64",
+          "image": {
+            "image": "quay.io/centos-bootc/centos-bootc@sha256:c3cdaf690807f101fc26207a35fb9fa5871620cb450d02b89041e2189be4a33b",
+            "transport": "registry"
+          },
+          "imageDigest": "sha256:0856c40f21e38182a3a80faea5978fd3d4931d215def63b3237a498bcf52fe0a",
+          "timestamp": "2026-10-11T21:25:10Z",
+          "version": "9"
+        },
+        "incompatible": false,
+        "ostree": {
+          "checksum": "5dfd069e2d736fce21666fe742377fdf03623262e9493129a527624521c0b18d",
+          "deploySerial": 0,
+          "stateroot": "default"
+        },
+        "pinned": false,
+        "softRebootCapable": false,
+        "store": "ostreeContainer"
+      },
+      "readOnly": false,
+      "rollback": {
+        "cachedUpdate": null,
+        "composefs": null,
+        "downloadOnly": false,
+        "image": {
+          "architecture": "amd64",
+          "image": {
+            "image": "quay.io/flightctl/flightctl-device:base-cs9-bootc-v1.4.0-main-191-gb3bb4d485",
+            "transport": "registry"
+          },
+          "imageDigest": "sha256:e861c823c7cb3d6fc1dea9e90d4c6d2e87a57b99d488167efa4e9c527515cceb",
+          "timestamp": "2026-09-28T21:30:43Z",
+          "version": "v1.4.0-main-191-gb3bb4d485"
+        },
+        "incompatible": false,
+        "ostree": {
+          "checksum": "7793a777f2fbde5bb7ff2fbee8f767e845fef09faec88a7d5b8f72b2f0fc6e61",
+          "deploySerial": 0,
+          "stateroot": "default"
+        },
+        "pinned": false,
+        "softRebootCapable": false,
+        "store": "ostreeContainer"
+      },
+      "rollbackQueued": false,
+      "staged": null,
+      "type": "bootcHost",
+      "usrOverlay": null
+    }
+  },
+  "observations": [
+    "Desired and booted image reference retains verified four-architecture index digest.",
+    "Staged and booted imageDigest equal the selected amd64 platform manifest, not the index.",
+    "Before reboot, booted imageDigest remains the old image while staged digest identifies the new image.",
+    "After reboot, new image is booted, old image is rollback, staged is null."
+  ],
+  "commands": [
+    "qemu-img create -f qcow2 -b BASE -F qcow2 PRIVATE_OVERLAY",
+    "virt-customize inspection failed: no operating systems found; no guest boot occurred before offline mask",
+    "guestfish mounted /dev/sda4 and created then read back agent-mask symlinks in sysroot and deployment etc",
+    "flightctl-dev-vm start --name UNIQUE_DOMAIN --ssh-port 2236 --mem 2048 --work-dir PRIVATE_DIR",
+    "bootc switch quay.io/centos-bootc/centos-bootc@sha256:c3cdaf690807f101fc26207a35fb9fa5871620cb450d02b89041e2189be4a33b",
+    "bootc status --json before and after staging",
+    "systemctl reboot (clone only)",
+    "private offline sudoers repair after public target dropped developer privilege; clone restarted",
+    "bootc status --json after target boot",
+    "flightctl-dev-vm delete --name UNIQUE_DOMAIN --ssh-port 2236 --work-dir PRIVATE_DIR"
+  ],
+  "cleanup": {
+    "privateDomainAbsent": true,
+    "privateOverlayRemoved": true,
+    "sshPort2236Closed": true,
+    "originalDomainStillRunning": true,
+    "originalAgentActive": true,
+    "originalBootedDigest": "sha256:397c4e670a00e9558600a0f2c513e7ecc5320bc11212b9886b594a8f51a228d4",
+    "originalStagedNull": true
+  },
+  "limits": [
+    "Ordinary bootc index-pinned registry switch/staging and actual target boot verified; OCI-delta reconstructed OS import/staging not exercised.",
+    "Initial clone image registry repository was unavailable, so its raw manifest hash could not be independently fetched. Public target index and selected platform manifest hashes were independently verified.",
+    "bootc status invoked during download serialized behind the operation lock; no unlocked mid-download snapshot is claimed.",
+    "Public target removed developer sudo configuration. After first successful target boot the clone was gracefully stopped and its private mutable etc received temporary sudo access, then restarted to collect root-required status. Target immutable image identity was unchanged."
+  ]
+}

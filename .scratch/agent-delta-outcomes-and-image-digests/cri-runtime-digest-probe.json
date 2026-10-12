@@ -1,0 +1,153 @@
+{
+  "clusterImage": "quay.io/minc-org/minc@sha256:439aee94413acd5143dd1afb390bfb1d679ebdc62073dbc2dfea9c7c1383be0c",
+  "container": "flightctl-cri-digest-probe-20261012",
+  "volume": "flightctl-cri-digest-probe-20261012-storage",
+  "podmanVersion": "5.8.5",
+  "versions": "microshift-4.19.0_0.nightly_2025_08_28_080135_20250902035702_005e05c71_dirty-1.el9.x86_64\ncri-o-1.32.8-2.rhaos4.19.git6140265.el9.x86_64\ncri-tools-1.32.0-2.el9.x86_64\nmicroshift-kindnet-4.19.0_0.nightly_2025_08_28_080135_20250902035702_005e05c71_dirty-1.el9.x86_64",
+  "probes": [
+    {
+      "pod": "digest-pinned",
+      "declaredImage": "docker.io/library/alpine@sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8",
+      "phase": "Running",
+      "containerStatuses": [
+        {
+          "name": "probe",
+          "image": "docker.io/library/alpine@sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8",
+          "imageID": "docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+          "containerID": "cri-o://28e163053c23ea099f04ac2a94997352d9f7dd8ffbbb75c2e02aef22e624706d",
+          "ready": true,
+          "state": {
+            "running": {
+              "startedAt": "2026-10-12T03:26:58Z"
+            }
+          },
+          "criImageStatus": {
+            "id": "c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238",
+            "repoTags": [
+              "docker.io/library/alpine:3.22"
+            ],
+            "repoDigests": [
+              "docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+              "docker.io/library/alpine@sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8"
+            ],
+            "size": "8593505"
+          },
+          "criContainerStatus": {
+            "id": "28e163053c23ea099f04ac2a94997352d9f7dd8ffbbb75c2e02aef22e624706d",
+            "state": "CONTAINER_RUNNING",
+            "image": {
+              "annotations": {},
+              "image": "docker.io/library/alpine@sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8",
+              "runtimeHandler": "",
+              "userSpecifiedImage": ""
+            },
+            "imageRef": "docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764"
+          }
+        }
+      ]
+    },
+    {
+      "pod": "tagged",
+      "declaredImage": "docker.io/library/alpine:3.22",
+      "phase": "Running",
+      "containerStatuses": [
+        {
+          "name": "probe",
+          "image": "docker.io/library/alpine:3.22",
+          "imageID": "docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+          "containerID": "cri-o://af2aa966e37d9911fb4ee024f1070d7349aa547c59c9e6ae085fb3fc2ce76304",
+          "ready": true,
+          "state": {
+            "running": {
+              "startedAt": "2026-10-12T03:26:58Z"
+            }
+          },
+          "criImageStatus": {
+            "id": "c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238",
+            "repoTags": [
+              "docker.io/library/alpine:3.22"
+            ],
+            "repoDigests": [
+              "docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+              "docker.io/library/alpine@sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8"
+            ],
+            "size": "8593505"
+          },
+          "criContainerStatus": {
+            "id": "af2aa966e37d9911fb4ee024f1070d7349aa547c59c9e6ae085fb3fc2ce76304",
+            "state": "CONTAINER_RUNNING",
+            "image": {
+              "annotations": {},
+              "image": "docker.io/library/alpine:3.22",
+              "runtimeHandler": "",
+              "userSpecifiedImage": ""
+            },
+            "imageRef": "docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764"
+          }
+        }
+      ]
+    }
+  ],
+  "launchOptions": [
+    "-d",
+    "-it",
+    "--privileged",
+    "--systemd=always",
+    "--memory=1500m",
+    "--memory-swap=3g",
+    "--hostname=127.0.0.1.nip.io",
+    "-p",
+    "127.0.0.1:16443:6443",
+    "-v",
+    "flightctl-cri-digest-probe-20261012-storage:/host-container"
+  ],
+  "containerAdjustments": [
+    "OLM manifest directory moved outside watched manifests before initialization"
+  ],
+  "topolvmInstalled": false,
+  "registry": {
+    "indexDigest": "sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8",
+    "indexMediaType": "application/vnd.oci.image.index.v1+json",
+    "amd64Digest": "sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+    "amd64RawDigest": "sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+    "amd64MediaType": "application/vnd.oci.image.manifest.v1+json",
+    "configDigest": "sha256:c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238"
+  },
+  "commands": {
+    "pull": "sudo podman pull quay.io/minc-org/minc@sha256:439aee94413acd5143dd1afb390bfb1d679ebdc62073dbc2dfea9c7c1383be0c",
+    "launch": "sudo podman run -d -it --privileged --systemd=always --memory=1500m --memory-swap=3g --hostname 127.0.0.1.nip.io -p 127.0.0.1:16443:6443 -v flightctl-cri-digest-probe-20261012-storage:/host-container --name flightctl-cri-digest-probe-20261012 --entrypoint /bin/bash quay.io/minc-org/minc@sha256:439aee94413acd5143dd1afb390bfb1d679ebdc62073dbc2dfea9c7c1383be0c -c 'while [ ! -e /tmp/flightctl-probe-start ]; do sleep 1; done; exec /sbin/init'",
+    "prepare": "sudo podman exec flightctl-cri-digest-probe-20261012 bash -c \"mv /usr/lib/microshift/manifests.d/001-microshift-olm /tmp/flightctl-disabled-olm; touch /tmp/flightctl-probe-start\"",
+    "podObservation": "sudo podman exec flightctl-cri-digest-probe-20261012 env KUBECONFIG=/var/lib/microshift/resources/kubeadmin/kubeconfig kubectl get pods digest-pinned tagged -o json --request-timeout=5s",
+    "criImageObservation": "sudo podman exec flightctl-cri-digest-probe-20261012 crictl inspecti <pod imageID>",
+    "criContainerObservation": "sudo podman exec flightctl-cri-digest-probe-20261012 crictl inspect <containerID>",
+    "registryObservation": "skopeo inspect --raw docker://docker.io/library/alpine@<index or child digest>"
+  },
+  "podSpecSummary": {
+    "namespace": "default",
+    "restartPolicy": "Never",
+    "command": [
+      "sleep",
+      "600"
+    ],
+    "requests": {
+      "cpu": "5m",
+      "memory": "8Mi"
+    },
+    "limits": {
+      "cpu": "100m",
+      "memory": "32Mi"
+    }
+  },
+  "cleanup": {
+    "containerRemoved": true,
+    "volumeRemoved": true,
+    "newClusterImageRemoved": true,
+    "rootContainerInventoryEmpty": true,
+    "rootImageInventoryEmpty": true,
+    "rootVolumeInventoryEmpty": true,
+    "agentActiveAfterCleanup": true,
+    "stopTimeoutSeconds": 25,
+    "podmanUsedSIGKILLAfterStopTimeout": true,
+    "hostConfigurationModified": false
+  }
+}

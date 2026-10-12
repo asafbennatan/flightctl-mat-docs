@@ -1,0 +1,54 @@
+{
+  "vm": "flightctl-device-default",
+  "podmanVersion": "podman version 5.8.5",
+  "reference": "docker.io/library/alpine@sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8",
+  "registryIndexDigest": "sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8",
+  "registryIndexMediaType": "application/vnd.oci.image.index.v1+json",
+  "registryAMD64ManifestDigest": "sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+  "registryAMD64RawDigest": "sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+  "registryAMD64MediaType": "application/vnd.oci.image.manifest.v1+json",
+  "container": {
+    "Id": "c5f452ebbbdff5396ededa38a37154315d937f84b402c848832c1fe38322b5cb",
+    "Name": "flightctl-digest-probe-20261012",
+    "Image": "c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238",
+    "ImageName": "docker.io/library/alpine@sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8"
+  },
+  "containerState": "running",
+  "localImage": {
+    "Id": "c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238",
+    "Digest": "sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8",
+    "RepoDigests": [
+      "docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+      "docker.io/library/alpine@sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8"
+    ],
+    "ManifestType": "application/vnd.oci.image.manifest.v1+json",
+    "Architecture": "amd64",
+    "Os": "linux"
+  },
+  "microshiftInstalled": false,
+  "crioInstalled": false,
+  "registryAMD64ConfigDigest": "sha256:c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238",
+  "configDigestMatchesContainerImageID": true,
+  "digestHexLengths": {
+    "registryIndexDigest": 64,
+    "registryAMD64ManifestDigest": 64,
+    "registryAMD64RawDigest": 64,
+    "registryAMD64ConfigDigest": 64
+  },
+  "commands": [
+    "sudo podman pull docker.io/library/alpine@sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8",
+    "sudo podman run -d --name flightctl-digest-probe-20261012 --pull=never docker.io/library/alpine@sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8 sleep 120",
+    "sudo podman container inspect flightctl-digest-probe-20261012",
+    "sudo podman image inspect c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238",
+    "skopeo inspect --raw docker://docker.io/library/alpine@sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8",
+    "skopeo inspect --raw docker://docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764"
+  ],
+  "cleanup": {
+    "containerRemoved": true,
+    "newImageRemoved": true,
+    "rootContainerInventoryEmpty": true,
+    "rootImageInventoryEmpty": true,
+    "containerExistsExit": 1,
+    "imageExistsExit": 1
+  }
+}

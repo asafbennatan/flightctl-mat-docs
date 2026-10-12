@@ -1,0 +1,176 @@
+{
+  "cluster": {
+    "clusterImage": "quay.io/minc-org/minc@sha256:439aee94413acd5143dd1afb390bfb1d679ebdc62073dbc2dfea9c7c1383be0c",
+    "container": "flightctl-cri-reconstruction-probe",
+    "volume": "flightctl-cri-reconstruction-probe-storage",
+    "clusterImagePresentBefore": false
+  },
+  "source": "docker.io/library/alpine:3.21",
+  "target": "docker.io/library/alpine:3.22",
+  "canonicalRefreshReference": "docker.io/library/alpine@sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8",
+  "steps": [
+    "source-pulled-to-owning-CRI-store",
+    "actual-delta-imported-into-owning-CRI-store",
+    "reconstructed-workload-running-with-pull-never",
+    "canonical-index-reference-refreshed",
+    "both-old-and-refreshed-workloads-running"
+  ],
+  "versions": "microshift-4.19.0_0.nightly_2025_08_28_080135_20250902035702_005e05c71_dirty-1.el9.x86_64\ncri-o-1.32.8-2.rhaos4.19.git6140265.el9.x86_64\ncri-tools-1.32.0-2.el9.x86_64\n",
+  "storageConfig": "[crio]\n  root = \"/var/lib/containers/storage\"\n  runroot = \"/run/containers/storage\"\n  imagestore = \"\"\n  storage_driver = \"overlay\"\n  storage_option = [\"overlay.imagestore=/host-container\", \"overlay.mountopt=nodev\"]\n  log_dir = \"/var/log/crio/pods\"\n  version_file = \"/var/run/crio/version\"\n  version_file_persist = \"\"\n  clean_shutdown_file = \"/var/lib/crio/clean.shutdown\"\n  internal_wipe = true\n  internal_repair = true\n  ",
+  "sourcePull": "Image is up to date for docker.io/library/alpine@sha256:3c81aa9a3d770b316568f4499e30461a5cd3fbd7180bd89e28e34894c7845832\n",
+  "importOutput": "d34841dbf229c902a835c11fc12da05f90794737517c12462e63fd6d2553f18a\n",
+  "reconstructedManifestDigest": "sha256:1ea478bc4da50dfb0c466db6d757ba28980b0a029139091c3bf525184b699022",
+  "reconstructedManifest": {
+    "schemaVersion": 2,
+    "mediaType": "application/vnd.oci.image.manifest.v1+json",
+    "config": {
+      "mediaType": "application/vnd.oci.image.config.v1+json",
+      "digest": "sha256:c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238",
+      "size": 611
+    },
+    "layers": [
+      {
+        "mediaType": "application/vnd.oci.image.layer.v1.tar+gzip",
+        "digest": "sha256:e477571b896b8d18635f33e4efb8851e6c4929111b0a4fe9b17b34a16fd9c37f",
+        "size": 8581632
+      }
+    ],
+    "annotations": {
+      "com.docker.official-images.bashbrew.arch": "amd64",
+      "org.opencontainers.image.base.name": "scratch",
+      "org.opencontainers.image.created": "2026-09-17T20:37:41Z",
+      "org.opencontainers.image.revision": "32cb3f1f45f4fee15882936c06a264eb9e5130fe",
+      "org.opencontainers.image.source": "https://github.com/alpinelinux/docker-alpine.git#32cb3f1f45f4fee15882936c06a264eb9e5130fe:x86_64",
+      "org.opencontainers.image.url": "https://hub.docker.com/_/alpine",
+      "org.opencontainers.image.version": "3.22.6"
+    }
+  },
+  "beforeRefresh": {
+    "pod": "before-refresh",
+    "declaredImage": "docker.io/library/alpine:3.22",
+    "phase": "Running",
+    "containerStatus": {
+      "image": "docker.io/library/alpine:3.22",
+      "imageID": "docker.io/library/alpine@sha256:1ea478bc4da50dfb0c466db6d757ba28980b0a029139091c3bf525184b699022",
+      "containerID": "cri-o://572d6c829dcaa35c15740c61d8f6072fb2b5566e2a82baa9822e4a2ca8e48588",
+      "ready": true,
+      "state": {
+        "running": {
+          "startedAt": "2026-10-12T04:38:41Z"
+        }
+      }
+    },
+    "criContainerStatus": {
+      "id": "572d6c829dcaa35c15740c61d8f6072fb2b5566e2a82baa9822e4a2ca8e48588",
+      "state": "CONTAINER_RUNNING",
+      "image": {
+        "annotations": {},
+        "image": "docker.io/library/alpine:3.22",
+        "runtimeHandler": "",
+        "userSpecifiedImage": ""
+      },
+      "imageRef": "docker.io/library/alpine@sha256:1ea478bc4da50dfb0c466db6d757ba28980b0a029139091c3bf525184b699022"
+    },
+    "criImageStatus": {
+      "id": "d34841dbf229c902a835c11fc12da05f90794737517c12462e63fd6d2553f18a",
+      "repoTags": [
+        "docker.io/library/alpine:3.22"
+      ],
+      "repoDigests": [
+        "docker.io/library/alpine@sha256:1ea478bc4da50dfb0c466db6d757ba28980b0a029139091c3bf525184b699022"
+      ]
+    },
+    "runtimeFiles": "3.22.6\n6dcd5f0190e8f4b055c2823b3d97660704b97d70c60cd3d3cf9805922fde1302  /bin/busybox\n"
+  },
+  "canonicalRefreshOutput": "Image is up to date for docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764\n",
+  "afterRefresh": {
+    "pod": "after-refresh",
+    "declaredImage": "docker.io/library/alpine@sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8",
+    "phase": "Running",
+    "containerStatus": {
+      "image": "docker.io/library/alpine@sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8",
+      "imageID": "docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+      "containerID": "cri-o://24180ff2795f829683a74f973e2d269823b96522919f265b8c5664fb37643c98",
+      "ready": true,
+      "state": {
+        "running": {
+          "startedAt": "2026-10-12T04:38:48Z"
+        }
+      }
+    },
+    "criContainerStatus": {
+      "id": "24180ff2795f829683a74f973e2d269823b96522919f265b8c5664fb37643c98",
+      "state": "CONTAINER_RUNNING",
+      "image": {
+        "annotations": {},
+        "image": "docker.io/library/alpine@sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8",
+        "runtimeHandler": "",
+        "userSpecifiedImage": ""
+      },
+      "imageRef": "docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764"
+    },
+    "criImageStatus": {
+      "id": "c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238",
+      "repoTags": [],
+      "repoDigests": [
+        "docker.io/library/alpine@sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+        "docker.io/library/alpine@sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8"
+      ]
+    },
+    "runtimeFiles": "3.22.6\n6dcd5f0190e8f4b055c2823b3d97660704b97d70c60cd3d3cf9805922fde1302  /bin/busybox\n"
+  },
+  "oldWorkloadAfterRefresh": {
+    "pod": "before-refresh",
+    "declaredImage": "docker.io/library/alpine:3.22",
+    "phase": "Running",
+    "containerStatus": {
+      "image": "docker.io/library/alpine:3.22",
+      "imageID": "docker.io/library/alpine@sha256:1ea478bc4da50dfb0c466db6d757ba28980b0a029139091c3bf525184b699022",
+      "containerID": "cri-o://572d6c829dcaa35c15740c61d8f6072fb2b5566e2a82baa9822e4a2ca8e48588",
+      "ready": true,
+      "state": {
+        "running": {
+          "startedAt": "2026-10-12T04:38:41Z"
+        }
+      }
+    },
+    "criContainerStatus": {
+      "id": "572d6c829dcaa35c15740c61d8f6072fb2b5566e2a82baa9822e4a2ca8e48588",
+      "state": "CONTAINER_RUNNING",
+      "image": {
+        "annotations": {},
+        "image": "docker.io/library/alpine:3.22",
+        "runtimeHandler": "",
+        "userSpecifiedImage": ""
+      },
+      "imageRef": "docker.io/library/alpine@sha256:1ea478bc4da50dfb0c466db6d757ba28980b0a029139091c3bf525184b699022"
+    },
+    "criImageStatus": {
+      "id": "d34841dbf229c902a835c11fc12da05f90794737517c12462e63fd6d2553f18a",
+      "repoTags": [
+        "docker.io/library/alpine:3.22"
+      ],
+      "repoDigests": [
+        "docker.io/library/alpine@sha256:1ea478bc4da50dfb0c466db6d757ba28980b0a029139091c3bf525184b699022"
+      ]
+    },
+    "runtimeFiles": "3.22.6\n6dcd5f0190e8f4b055c2823b3d97660704b97d70c60cd3d3cf9805922fde1302  /bin/busybox\n"
+  },
+  "canonicalPlatformManifestDigest": "sha256:3e9b4b680bfc9fb5269227cffbd6d42be39fbf7c0b908123913864aa4447e764",
+  "success": true,
+  "cleanup": {
+    "containers": "",
+    "volumes": "",
+    "agent": "active",
+    "newClusterImageRemoved": true,
+    "VMTemporaryDataRemoved": true
+  },
+  "canonicalIndexDigest": "sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8",
+  "canonicalPlatformConfigDigest": "sha256:c83674e1999044d33d751661371b873539f47e5b5c5ca3320c7e0377acca6238",
+  "verificationNote": "The initial verification compared skopeo raw tagged output (an index) to the platform digest. After cleanup, explicit index and platform requests independently verified both hashes and index membership; runtime measurements remain unchanged.",
+  "limits": [
+    "Import used tagged Alpine3.22; canonical refresh requested its index-pinned publication, not the same tagged reference.",
+    "No containerd, MicroShift4.21, digest-pinned import, or bootc reconstruction was exercised.",
+    "File equality checks cover Alpine release and busybox; they are not a complete filesystem equivalence proof."
+  ]
+}
