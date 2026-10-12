@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+worktree_arg=${1:-$PWD}
+worktree=$(git -C "$worktree_arg" rev-parse --show-toplevel)
+worktree=$(cd "$worktree" && pwd -P)
+overlay_root=$(git -C "$worktree" config --path --get flightctl-mat-docs.overlayRoot)
+state_dir=$(git -C "$worktree" config --path --get flightctl-mat-docs.stateDir)
+worktree_id=$(printf '%s' "$worktree" | cksum | awk '{print $1 "-" $2}')
+temporary_paths=$(mktemp "${TMPDIR:-/tmp}/flightctl-mat-docs-index.XXXXXX")
+trap 'rm -f "$temporary_paths"' 0 HUP INT TERM
+
+for relative in .scratch docs/adr GLOSSARY.md; do
+  source_path="$overlay_root/$relative"
+  destination="$worktree/$relative"
+  if [[ ! -e "$source_path" ]]; then
+    printf 'Missing overlay source: %s\n' "$source_path" >&2
+    exit 1
+  fi
+  mkdir -p "$(dirname "$destination")"
+  git -C "$worktree" ls-files -z -- "$relative" > "$temporary_paths"
+  tracked_paths=()
+  while IFS= read -r -d '' tracked_path; do
+    tracked_paths+=("$tracked_path")
+  done < "$temporary_paths"
+
+  if [[ -L "$destination" ]]; then
+    current_target=$(readlink "$destination")
+    if [[ "$current_target" != "$source_path" ]]; then
+      printf 'Leaving unexpected symlink in place: %s -> %s\n' "$destination" "$current_target" >&2
+      exit 1
+    fi
+    for tracked_path in "${tracked_paths[@]}"; do
+      git -C "$worktree" update-index --skip-worktree -- "$tracked_path"
+    done
+    continue
+  fi
+
+  if [[ -e "$destination" ]]; then
+    if ((${#tracked_paths[@]} == 0)); then
+      printf 'Leaving untracked local path in place: %s\n' "$destination" >&2
+      exit 1
+    fi
+    status=$(git -C "$worktree" status --porcelain=v1 --untracked-files=all -- "$relative")
+    if [[ -n "$status" ]]; then
+      printf 'Leaving modified tracked path in place: %s\n%s\n' "$destination" "$status" >&2
+      exit 1
+    fi
+    for tracked_path in "${tracked_paths[@]}"; do
+      git -C "$worktree" update-index --skip-worktree -- "$tracked_path"
+    done
+    backup="$state_dir/backups/$worktree_id/${relative//\//__}"
+    if [[ -e "$backup" || -L "$backup" ]]; then
+      printf 'Refusing to replace existing local backup: %s\n' "$backup" >&2
+      exit 1
+    fi
+    mkdir -p "$(dirname "$backup")"
+    mv "$destination" "$backup"
+    printf 'Preserved prior worktree copy at %s\n' "$backup"
+  else
+    for tracked_path in "${tracked_paths[@]}"; do
+      git -C "$worktree" update-index --skip-worktree -- "$tracked_path"
+    done
+  fi
+
+  ln -s "$source_path" "$destination"
+  printf 'Linked %s -> %s\n' "$destination" "$source_path"
+done

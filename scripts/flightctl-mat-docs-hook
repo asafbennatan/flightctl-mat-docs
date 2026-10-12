@@ -1,0 +1,36 @@
+#!/bin/sh
+set -eu
+
+hook_name=${0##*/}
+overlay_root=$(git config --path --get flightctl-mat-docs.overlayRoot)
+state_dir=$(git config --path --get flightctl-mat-docs.stateDir)
+previous_hook="$state_dir/prior-hooks/$hook_name"
+
+run_previous() {
+  if [ -x "$previous_hook" ]; then
+    "$previous_hook" "$@"
+  fi
+}
+
+case "$hook_name" in
+  post-checkout|post-merge)
+    "$overlay_root/scripts/flightctl-mat-docs-sync" "$PWD"
+    run_previous "$@"
+    ;;
+  pre-commit)
+    run_previous "$@"
+    "$overlay_root/scripts/guard-pre-commit"
+    ;;
+  pre-push)
+    temporary_input=$(mktemp "${TMPDIR:-/tmp}/flightctl-mat-docs-pre-push.XXXXXX")
+    trap 'rm -f "$temporary_input"' 0 HUP INT TERM
+    cat > "$temporary_input"
+    if [ -x "$previous_hook" ]; then
+      "$previous_hook" "$@" < "$temporary_input"
+    fi
+    "$overlay_root/scripts/guard-pre-push" "$@" < "$temporary_input"
+    ;;
+  *)
+    run_previous "$@"
+    ;;
+esac
