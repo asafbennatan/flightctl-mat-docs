@@ -17,7 +17,7 @@ test_pre_commit_allows_code_changes() {
 
 test_pre_commit_blocks_overlay_changes() {
   local path slug repo output
-  for path in .scratch/notes.md docs/adr/0001.md GLOSSARY.md; do
+  for path in .scratch/notes.md docs/adr/0001.md GLOSSARY.md docs/agents docs/agents/issue-tracker.md; do
     slug=${path//\//_}
     repo="$TEST_TMP/pre-commit-$slug"
     output="$TEST_TMP/pre-commit-$slug.out"
@@ -57,7 +57,7 @@ test_pre_push_allows_code_changes() {
 
 test_pre_push_blocks_overlay_changes() {
   local path slug repo output input base_sha local_sha
-  for path in .scratch/notes.md docs/adr/0001.md GLOSSARY.md; do
+  for path in .scratch/notes.md docs/adr/0001.md GLOSSARY.md docs/agents docs/agents/issue-tracker.md; do
     slug=${path//\//_}
     repo="$TEST_TMP/pre-push-$slug"
     output="$TEST_TMP/pre-push-$slug.out"

@@ -36,6 +36,9 @@ test_installation_and_linked_worktree_propagation() {
   git -C "$checkout" config user.email 'overlay-test@example.invalid'
   git -C "$checkout" config commit.gpgsign false
 
+  mkdir -p "$checkout/docs/agents"
+  ln -s "$OVERLAY_ROOT/docs/agents/domain.md" "$checkout/docs/agents/domain.md"
+
   mkdir -p "$custom_hooks"
   for hook_name in post-checkout pre-commit pre-push; do
     create_marker_hook "$custom_hooks/$hook_name"
@@ -67,15 +70,21 @@ test_installation_and_linked_worktree_propagation() {
   if [[ "$exclude_file" != /* ]]; then
     exclude_file="$checkout/$exclude_file"
   fi
-  for pattern in /.scratch /docs/adr /GLOSSARY.md; do
+  for pattern in /.scratch /docs/adr /GLOSSARY.md /docs/agents; do
     grep -Fqx "$pattern" "$exclude_file" || fail "installer did not add '$pattern' to the local exclude file"
   done
 
-  for overlay_path in .scratch docs/adr GLOSSARY.md; do
+  for overlay_path in .scratch docs/adr GLOSSARY.md docs/agents; do
     [[ -L "$checkout/$overlay_path" ]] || fail "installer did not link $overlay_path"
     [[ $(readlink "$checkout/$overlay_path") == "$OVERLAY_ROOT/$overlay_path" ]] ||
       fail "installer linked $overlay_path to the wrong overlay path"
   done
+  [[ -f "$checkout/docs/agents/issue-tracker.md" ]] ||
+    fail 'installer did not expose the shared issue-tracker guidance'
+  [[ -f "$checkout/docs/agents/triage-labels.md" ]] ||
+    fail 'installer did not expose the shared triage labels'
+  [[ -f "$OVERLAY_ROOT/docs/agents/domain.md" ]] ||
+    fail 'installer removed the shared domain guide while migrating its old link'
   if ! git -C "$checkout" check-ignore -q --no-index -- .scratch; then
     git -C "$checkout" check-ignore -v --no-index -- .scratch >&2 || true
     fail 'the local exclude rules do not ignore the linked overlay'
@@ -86,7 +95,7 @@ test_installation_and_linked_worktree_propagation() {
     cat "$install_output" >&2
     fail 'reinstall failed'
   fi
-  for pattern in /.scratch /docs/adr /GLOSSARY.md; do
+  for pattern in /.scratch /docs/adr /GLOSSARY.md /docs/agents; do
     [[ $(grep -Fxc "$pattern" "$exclude_file") -eq 1 ]] || fail "reinstall duplicated '$pattern' in the exclude file"
   done
   pass 'reinstall is idempotent for local excludes and hooks'
@@ -102,14 +111,14 @@ test_installation_and_linked_worktree_propagation() {
   assert_contains 'stdin:refs/heads/main ' "$marker"
   [[ $(grep -Fxc pre-push "$marker") -eq 1 ]] || fail 'pre-push hook chaining ran more than once'
   remote_paths=$(git --git-dir="$remote" ls-tree -r --name-only main)
-  if grep -Eq '^(\.scratch/|docs/adr/|GLOSSARY\.md$)' <<< "$remote_paths"; then
+  if grep -Eq '^(\.scratch/|docs/adr/|GLOSSARY\.md$|docs/agents($|/))' <<< "$remote_paths"; then
     fail 'the temporary upstream received an overlay path'
   fi
   pass 'existing commit and push hooks run while code-only changes reach upstream'
 
   worktree="$TEST_TMP/flightctl linked worktree"
   OVERLAY_TEST_MARKER="$marker" git -C "$checkout" worktree add -q -b overlay/integration "$worktree" main
-  for overlay_path in .scratch docs/adr GLOSSARY.md; do
+  for overlay_path in .scratch docs/adr GLOSSARY.md docs/agents; do
     [[ -L "$worktree/$overlay_path" ]] || fail "new linked worktree did not receive $overlay_path"
     [[ $(readlink "$worktree/$overlay_path") == "$OVERLAY_ROOT/$overlay_path" ]] ||
       fail "new worktree linked $overlay_path to the wrong overlay path"
@@ -118,6 +127,49 @@ test_installation_and_linked_worktree_propagation() {
   [[ $(grep -Fxc post-checkout "$marker") -eq 1 ]] || fail 'post-checkout hook chaining ran more than once'
   [[ -z $(git -C "$worktree" status --porcelain) ]] || fail 'overlay links made the new worktree appear dirty'
   pass 'new linked worktrees receive the overlay through post-checkout'
+
+  if ! "$OVERLAY_ROOT/scripts/uninstall-flightctl-overlay" "$checkout" > "$install_output" 2>&1; then
+    cat "$install_output" >&2
+    fail 'uninstall failed after the integration checks'
+  fi
+  for path in "$checkout" "$worktree"; do
+    [[ ! -e "$path/docs/agents" && ! -L "$path/docs/agents" ]] ||
+      fail "uninstall left the docs/agents overlay link in $path"
+  done
+  if grep -Fqx '/docs/agents' "$exclude_file"; then
+    fail 'uninstall left the docs/agents local exclude in place'
+  fi
+  pass 'uninstall removes docs/agents links and its local exclude'
+}
+
+test_install_preserves_local_agent_docs_on_migration_conflict() {
+  local seed="$TEST_TMP/agent-docs-seed"
+  local remote="$TEST_TMP/agent-docs-upstream.git"
+  local checkout="$TEST_TMP/agent-docs-checkout"
+  local install_output="$TEST_TMP/agent-docs-install.out"
+
+  new_repo "$seed"
+  printf 'Flight Control fixture\n' > "$seed/README.md"
+  commit_all "$seed" 'initial fixture'
+  git clone -q --bare "$seed" "$remote"
+  git clone -q "$remote" "$checkout"
+
+  mkdir -p "$checkout/docs/agents"
+  ln -s "$OVERLAY_ROOT/docs/agents/domain.md" "$checkout/docs/agents/domain.md"
+  printf 'local agent instructions\n' > "$checkout/docs/agents/local.md"
+
+  if "$OVERLAY_ROOT/scripts/install-flightctl-overlay" "$checkout" > "$install_output" 2>&1; then
+    fail 'installer replaced local docs/agents content during migration'
+  fi
+  assert_contains 'Leaving untracked local path in place:' "$install_output"
+  [[ -L "$checkout/docs/agents/domain.md" ]] ||
+    fail 'installer removed the legacy domain link next to local docs'
+  [[ $(cat "$checkout/docs/agents/local.md") == 'local agent instructions' ]] ||
+    fail 'installer changed the local docs/agents file'
+  [[ -f "$OVERLAY_ROOT/docs/agents/domain.md" ]] ||
+    fail 'installer removed the shared domain guide during conflict handling'
+  pass 'installer preserves local docs/agents files when migration conflicts'
 }
 
 test_installation_and_linked_worktree_propagation
+test_install_preserves_local_agent_docs_on_migration_conflict

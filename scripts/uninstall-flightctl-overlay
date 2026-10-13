@@ -87,7 +87,7 @@ done < <(git -C "$flightctl_root" worktree list --porcelain)
 
 for worktree in "${worktrees[@]}"; do
   id=$(worktree_id "$worktree")
-  for relative in .scratch docs/adr GLOSSARY.md; do
+  for relative in .scratch docs/adr GLOSSARY.md docs/agents; do
     destination="$worktree/$relative"
     backup="$state_dir/backups/$id/${relative//\//__}"
     source_path="$docs_root/$relative"
@@ -107,7 +107,7 @@ done
 
 for worktree in "${worktrees[@]}"; do
   id=$(worktree_id "$worktree")
-  for relative in .scratch docs/adr GLOSSARY.md; do
+  for relative in .scratch docs/adr GLOSSARY.md docs/agents; do
     destination="$worktree/$relative"
     backup="$state_dir/backups/$id/${relative//\//__}"
     source_path="$docs_root/$relative"
@@ -122,7 +122,7 @@ for worktree in "${worktrees[@]}"; do
     fi
   done
 
-  for relative in .scratch docs/adr GLOSSARY.md; do
+  for relative in .scratch docs/adr GLOSSARY.md docs/agents; do
     while IFS= read -r -d '' tracked_path; do
       prior_skip_worktree="$state_dir/worktrees/$id/prior-skip-worktree"
       if contains_path "$tracked_path" "$prior_skip_worktree"; then

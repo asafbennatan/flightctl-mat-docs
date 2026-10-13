@@ -24,7 +24,7 @@ while read -r local_ref local_sha remote_ref remote_sha; do
   commits=$(git rev-list "${revisions[@]}")
   while IFS= read -r commit; do
     [[ -n "$commit" ]] || continue
-    tree_paths=$(git ls-tree -r --name-only "$commit" -- .scratch docs/adr GLOSSARY.md)
+    tree_paths=$(git ls-tree -r --name-only "$commit" -- .scratch docs/adr GLOSSARY.md docs/agents)
     if [[ -n "$tree_paths" ]]; then
       printf 'Push blocked to %s: outgoing commit %s contains local material paths:\n' "$remote_name" "$commit" >&2
       printf '%s\n' "$tree_paths" >&2
