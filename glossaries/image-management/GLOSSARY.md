@@ -32,15 +32,23 @@ This context identifies images and describes the outcomes of applying deltas.
 
 **Delta discovery** — Finding a delta related to a desired image when an update does not identify one directly.
 
+**Delta candidate** — A validated OCI delta artifact considered for one target image, identified by its reference, source digest, target digest, and download size.
+
+**Locally usable delta candidate** — A delta candidate whose source image exists in the store that will reconstruct the target. Remote-only or wrong-runtime sources do not qualify.
+
+**Top-level application package** — The Helm chart or Compose/Quadlet package artifact that defines an application; it is not an OCI image-delta target.
+
+**Canonical refresh reference** — The digest-pinned reference to the selected platform manifest used after reconstruction to establish the target image's registry identity.
+
 **Delta apply outcome** — The agent's result for using a delta during an update. It describes the update attempt, separately from image identity.
 
 **Last delta result** — The delta apply outcome associated with the observed image identities currently reported for an OS or application. An application's result describes its reported image set, including workload images and image-backed volumes.
 
-**NotRequired** — The existing target image satisfies the agent's image pull rules, so neither a delta nor a full image fetch is needed. This outcome does not imply a fresh registry digest verification.
+**NotRequired** — The existing target image or top-level application package satisfies the agent's fetch rules, so neither a delta nor a full fetch is needed; a supplied image-delta hint does not change a top-level package no-op. This outcome does not imply a fresh registry digest verification.
 
 **NotUsed** — Delta application was skipped without a delta-apply failure; a full image fetch may still be needed.
 
-**Applied** — All delta work for the target succeeded.
+**Applied** — All delta work for the target succeeded, including any required canonical refresh.
 
 **Fallback** — A hinted or selected delta could not be used or applied, so the agent attempted a full image pull. The result carries a reason.
 
