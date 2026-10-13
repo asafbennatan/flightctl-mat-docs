@@ -100,3 +100,20 @@ membership is the supported form for UUID matching.
 The certificate never appears in CEL either: `spec.certificateName` is the
 mandatory policy boundary, and an expression cannot select another credential
 or organization.
+
+## Implementation reuse
+
+The existing CEL evaluator in `internal/service/labelsyncmapping` is
+Device-oriented, not ER-oriented: `ActivateDevice` builds activation roots
+from a Device, and its environment exposes dynamic `metadata`/`spec`/`status`
+with optional types, comprehensions, and semver — the broad activation this
+decision excludes.
+Reuse its machinery, not its environment: the cel-go dependency, the
+Parse → Check → Program pipeline with cost limits, the LRU program cache,
+synchronous CRUD-time validation, and the JSON activation round-trip.
+The net-new constructs are the restricted typed environment over ER
+`spec.deviceStatus.systemInfo`, boolean-only output validation, an AST subset
+validator, a cross-policy disjointness analyzer, and an ER activation builder.
+Extract the domain-independent pipeline, cache, and activation helper into a
+shared internal CEL runtime package; label-sync and enrollment each construct
+their own environment, and two real consumers justify the seam.
