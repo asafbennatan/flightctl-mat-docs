@@ -37,7 +37,7 @@ already answers and the questions that remain.
 
 ❓ **Q5** - **Matching fields**: Which fields can policies match?
 
-➡️ **[settled]** Only a closed list: reported serial, productSerial, productUuid (agent-reported, non-attested), certificate name and organization (certificate-derived), and TPM verified status (server-verified boolean). Arbitrary device-reported key/value matching is excluded. (PRD FR-2; Design §5.1)
+➡️ **[settled]** CEL runs only on the identifier fields the ER already reports under `spec.deviceStatus.systemInfo` — productSerial, productUuid, and a configured generic `serial` in `customInfo`. The certificate is the separate `spec.certificateName` boundary and the TPM requirement is a separate policy field alongside it, so neither is a CEL input. Arbitrary device-reported key/value matching is excluded. (PRD FR-2; Design §5.1)
 
 ---
 
@@ -49,7 +49,7 @@ already answers and the questions that remain.
 
 ❓ **Q7** - **Expression language**: Why CEL, and why restricted?
 
-➡️ **[settled]** Matching is boolean CEL over a restricted typed environment with no generic maps, clocks, network calls, or callbacks. The bounded subset (boolean operators, typed equality against literals, finite membership, `startsWith` on serial/productSerial, presence guards) makes overlap decidable so disjointness can be proven, not promised by examples. (Design §5)
+➡️ **[settled]** Matching is boolean CEL over a restricted typed view of the ER's reported device status, with no generic maps, clocks, network calls, or callbacks, and no `reported.*` alias namespace — expressions use the ER's existing paths. The bounded subset (boolean operators, typed equality against literals, finite membership, `startsWith` on serial/productSerial, presence guards) makes overlap decidable so disjointness can be proven, not promised by examples. (Design §5)
 
 ---
 
