@@ -36,9 +36,9 @@
 
 **Last delta result** — The delta apply outcome associated with the observed image identities currently reported for an OS or application. An application's result describes its reported image set, including workload images and image-backed volumes.
 
-**NotRequired** — The desired target image is already present with the correct digest, so no delta or image pull is needed.
+**NotRequired** — The existing target image satisfies the agent's image pull rules, so neither a delta nor a full image fetch is needed. This outcome does not imply a fresh registry digest verification.
 
-**NotUsed** — An update proceeds without using a delta because no usable candidate was selected; a full image pull may still be needed.
+**NotUsed** — Delta application was skipped without a delta-apply failure; a full image fetch may still be needed.
 
 **Applied** — All delta work for the target succeeded.
 
@@ -47,6 +47,10 @@
 **Partial** — An application update applied a delta to at least one image target and used no delta or fell back for another. Targets reported as `NotRequired` do not make the result partial.
 
 **Fallback reason** — The explanation associated with a `Fallback` result. An application with multiple fallback failures reports one deterministic representative reason.
+
+## Authentication
+
+**AuthProvider** — A Flight Control resource that describes an identity provider and its authentication configuration.
 
 ## Enrollment auto-approval
 
