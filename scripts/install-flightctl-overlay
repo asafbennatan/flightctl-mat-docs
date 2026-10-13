@@ -31,7 +31,7 @@ case "$docs_root/" in
     ;;
 esac
 
-for relative in .scratch docs/adr GLOSSARY.md; do
+for relative in .scratch docs/adr GLOSSARY.md docs/agents; do
   if [[ ! -e "$docs_root/$relative" ]]; then
     printf 'Missing overlay path: %s\n' "$docs_root/$relative" >&2
     exit 1
@@ -157,7 +157,7 @@ if [[ "$exclude_file" != /* ]]; then
 fi
 mkdir -p "$(dirname "$exclude_file")"
 touch "$exclude_file"
-for pattern in /.scratch /docs/adr /GLOSSARY.md; do
+for pattern in /.scratch /docs/adr /GLOSSARY.md /docs/agents; do
   if ! grep -Fqx "$pattern" "$exclude_file"; then
     printf '%s\n' "$pattern" >> "$exclude_file"
     if [[ ! -f "$added_excludes" ]] || ! grep -Fqx "$pattern" "$added_excludes"; then

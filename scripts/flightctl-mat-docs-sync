@@ -48,7 +48,18 @@ hide_tracked_paths() {
   done
 }
 
-for relative in .scratch docs/adr GLOSSARY.md; do
+# Migrate the earlier file-only link when it is the directory's only content.
+# Leave any other local docs/agents files untouched for the normal conflict check.
+legacy_domain_link="$worktree/docs/agents/domain.md"
+if [[ -L "$legacy_domain_link" && "$(readlink "$legacy_domain_link")" == "$overlay_root/docs/agents/domain.md" ]]; then
+  other_entries=$(find "$worktree/docs/agents" -mindepth 1 ! -path "$legacy_domain_link" -print -quit)
+  if [[ -z "$other_entries" ]]; then
+    rm -- "$legacy_domain_link"
+    rmdir -- "$worktree/docs/agents"
+  fi
+fi
+
+for relative in .scratch docs/adr GLOSSARY.md docs/agents; do
   source_path="$overlay_root/$relative"
   destination="$worktree/$relative"
   if [[ ! -e "$source_path" ]]; then
