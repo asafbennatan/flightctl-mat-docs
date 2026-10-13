@@ -47,3 +47,47 @@
 **Partial** — An application update applied a delta to at least one image target and used no delta or fell back for another. Targets reported as `NotRequired` do not make the result partial.
 
 **Fallback reason** — The explanation associated with a `Fallback` result. An application with multiple fallback failures reports one deterministic representative reason.
+
+## Enrollment auto-approval
+
+**Enrollment certificate** — A bootstrap certificate issued to a device so it can submit an Enrollment Request; it authorizes enrollment, not ongoing management.
+
+**Issuing CSR** — The existing CertificateSigningRequest whose tenant-local name identifies an enrollment certificate; it is the credential identity.
+
+**Enrollment Request (ER)** — A device-submitted request for a management certificate whose approval creates the same-named Device.
+
+**EnrollmentApprovalPolicy** — The administrator resource defining automatic approval rules for exactly one enrollment certificate.
+
+**Automatic approval** — Server-side approval of an Enrollment Request when the credential, exactly one matching enabled policy, all required gates, and quota checks pass.
+
+**Manual approval** — The existing human approval path; requests that match no policy or are blocked by a limit remain pending for it.
+
+**Exact-one-match** — The runtime requirement that exactly one enabled policy for the credential passes; zero or multiple matches leave the request pending with a reason.
+
+**Provably disjoint** — The requirement that enabled policies sharing a certificate have match expressions whose overlap is statically provable to be empty.
+
+**Label seal** — The one-time label assignment at automatic approval: static administrator labels plus explicitly allowed incoming keys, with static values winning.
+
+**Static device labels** — Administrator-defined labels a policy always applies at automatic approval.
+
+**Allowed incoming labels** — Exact Enrollment Request label keys an administrator explicitly permits through the label seal; unlisted keys are dropped.
+
+**Approval limit** — An optional per-policy lifetime maximum of automatic approvals; omitted means unlimited and zero blocks automatic approval.
+
+**Enrollment count** — The server-owned number of committed automatic approvals under a policy; it always increments and never resets.
+
+**Auto-approval window** — An optional per-policy number of days after certificate issuance during which automatic approval is allowed, independent of certificate validity.
+
+**Limit-blocked** — An Enrollment Request that passed every automatic-approval criterion except quota and stays pending with the reason "auto-approve passed but was not approved due to limit."
+
+**Enrollment revocation** — Security-officer revocation of an enrollment certificate, enforced at mTLS verification; it blocks new enrollment and rejects pending requests.
+
+**Flagging** — Marking automatically onboarded devices associated with a revoked enrollment certificate so operators can identify them.
+
+**Eviction** — Removal of an enrolled device's management access; enrollment revocation never evicts.
+
+**TPM verified** — A server-verified boolean reflecting completed TPM enrollment evidence; it never upgrades the assurance of agent-reported identifiers.
+
+**LegacyUnknown** — The explicit state for historical admissions whose issuing CSR identity cannot be trustworthily reconstructed.
+
+**Admission ledger** — The durable, immutable record of committed automatic admissions used for idempotency and audit.
