@@ -70,11 +70,11 @@ test_installation_and_linked_worktree_propagation() {
   if [[ "$exclude_file" != /* ]]; then
     exclude_file="$checkout/$exclude_file"
   fi
-  for pattern in /.scratch /docs/adr /GLOSSARY.md /docs/agents; do
+  for pattern in /.scratch /docs/adr /GLOSSARY-MAP.md /glossaries /docs/agents; do
     grep -Fqx "$pattern" "$exclude_file" || fail "installer did not add '$pattern' to the local exclude file"
   done
 
-  for overlay_path in .scratch docs/adr GLOSSARY.md docs/agents; do
+  for overlay_path in .scratch docs/adr GLOSSARY-MAP.md glossaries docs/agents; do
     [[ -L "$checkout/$overlay_path" ]] || fail "installer did not link $overlay_path"
     [[ $(readlink "$checkout/$overlay_path") == "$OVERLAY_ROOT/$overlay_path" ]] ||
       fail "installer linked $overlay_path to the wrong overlay path"
@@ -95,7 +95,7 @@ test_installation_and_linked_worktree_propagation() {
     cat "$install_output" >&2
     fail 'reinstall failed'
   fi
-  for pattern in /.scratch /docs/adr /GLOSSARY.md /docs/agents; do
+  for pattern in /.scratch /docs/adr /GLOSSARY-MAP.md /glossaries /docs/agents; do
     [[ $(grep -Fxc "$pattern" "$exclude_file") -eq 1 ]] || fail "reinstall duplicated '$pattern' in the exclude file"
   done
   pass 'reinstall is idempotent for local excludes and hooks'
@@ -111,14 +111,14 @@ test_installation_and_linked_worktree_propagation() {
   assert_contains 'stdin:refs/heads/main ' "$marker"
   [[ $(grep -Fxc pre-push "$marker") -eq 1 ]] || fail 'pre-push hook chaining ran more than once'
   remote_paths=$(git --git-dir="$remote" ls-tree -r --name-only main)
-  if grep -Eq '^(\.scratch/|docs/adr/|GLOSSARY\.md$|docs/agents($|/))' <<< "$remote_paths"; then
+  if grep -Eq '^(\.scratch/|docs/adr/|GLOSSARY\.md$|GLOSSARY-MAP\.md$|glossaries($|/)|docs/agents($|/))' <<< "$remote_paths"; then
     fail 'the temporary upstream received an overlay path'
   fi
   pass 'existing commit and push hooks run while code-only changes reach upstream'
 
   worktree="$TEST_TMP/flightctl linked worktree"
   OVERLAY_TEST_MARKER="$marker" git -C "$checkout" worktree add -q -b overlay/integration "$worktree" main
-  for overlay_path in .scratch docs/adr GLOSSARY.md docs/agents; do
+  for overlay_path in .scratch docs/adr GLOSSARY-MAP.md glossaries docs/agents; do
     [[ -L "$worktree/$overlay_path" ]] || fail "new linked worktree did not receive $overlay_path"
     [[ $(readlink "$worktree/$overlay_path") == "$OVERLAY_ROOT/$overlay_path" ]] ||
       fail "new worktree linked $overlay_path to the wrong overlay path"
@@ -133,9 +133,16 @@ test_installation_and_linked_worktree_propagation() {
     fail 'uninstall failed after the integration checks'
   fi
   for path in "$checkout" "$worktree"; do
+    [[ ! -e "$path/GLOSSARY-MAP.md" && ! -L "$path/GLOSSARY-MAP.md" ]] ||
+      fail "uninstall left the glossary map link in $path"
+    [[ ! -e "$path/glossaries" && ! -L "$path/glossaries" ]] ||
+      fail "uninstall left the glossaries overlay link in $path"
     [[ ! -e "$path/docs/agents" && ! -L "$path/docs/agents" ]] ||
       fail "uninstall left the docs/agents overlay link in $path"
   done
+  if grep -Fqx '/glossaries' "$exclude_file"; then
+    fail 'uninstall left the glossaries local exclude in place'
+  fi
   if grep -Fqx '/docs/agents' "$exclude_file"; then
     fail 'uninstall left the docs/agents local exclude in place'
   fi
@@ -171,5 +178,32 @@ test_install_preserves_local_agent_docs_on_migration_conflict() {
   pass 'installer preserves local docs/agents files when migration conflicts'
 }
 
+test_sync_migrates_legacy_root_glossary_link() {
+  local repo="$TEST_TMP/legacy-glossary-checkout"
+  local state_dir="$TEST_TMP/legacy-glossary-state"
+  local output="$TEST_TMP/legacy-glossary-sync.out"
+
+  new_repo "$repo"
+  git -C "$repo" config --local flightctl-mat-docs.overlayRoot "$OVERLAY_ROOT"
+  git -C "$repo" config --local --path flightctl-mat-docs.stateDir "$state_dir"
+  mkdir -p "$state_dir"
+  ln -s "$OVERLAY_ROOT/GLOSSARY.md" "$repo/GLOSSARY.md"
+
+  if ! "$OVERLAY_ROOT/scripts/flightctl-mat-docs-sync" "$repo" > "$output" 2>&1; then
+    cat "$output" >&2
+    fail 'sync failed while migrating the legacy glossary link'
+  fi
+  [[ ! -e "$repo/GLOSSARY.md" && ! -L "$repo/GLOSSARY.md" ]] ||
+    fail 'sync left the legacy root glossary link in place'
+  [[ -L "$repo/GLOSSARY-MAP.md" ]] || fail 'sync did not link the glossary map'
+  [[ $(readlink "$repo/GLOSSARY-MAP.md") == "$OVERLAY_ROOT/GLOSSARY-MAP.md" ]] ||
+    fail 'sync linked the glossary map to the wrong target'
+  [[ -L "$repo/glossaries" ]] || fail 'sync did not link the glossary contexts'
+  [[ $(readlink "$repo/glossaries") == "$OVERLAY_ROOT/glossaries" ]] ||
+    fail 'sync linked the glossary contexts to the wrong target'
+  pass 'sync migrates the legacy root glossary link to the mapped contexts'
+}
+
 test_installation_and_linked_worktree_propagation
 test_install_preserves_local_agent_docs_on_migration_conflict
+test_sync_migrates_legacy_root_glossary_link
