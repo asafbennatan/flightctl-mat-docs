@@ -33,6 +33,11 @@ _Avoid_: Issuing CSR
 
 **Manual approval** — The existing human approval path; requests that match no policy or are blocked by a limit remain pending for it.
 
+**Enrollment Request rejection** — A decision that refuses a pending request for admission; it does not revoke the enrollment certificate, affect other requests, or evict an enrolled device.
+_Avoid_: ER revocation
+
+**Manual rejection override** — An administrator's explicit approval of a previously manually rejected Enrollment Request, while its enrollment credential remains valid and unrevoked. Automatic processing cannot perform this override.
+
 **Admission** — The committed result of Enrollment Request approval: the same-named Device becomes enrolled and receives its management certificate.
 
 **LegacyUnknown** — The explicit state for historical admissions whose enrollment credential CSR identity cannot be trustworthily reconstructed.
