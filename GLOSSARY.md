@@ -52,7 +52,9 @@
 
 **AuthProvider** — A Flight Control resource that describes an identity provider and its authentication configuration.
 
-## Enrollment auto-approval
+## Enrollment
+
+### Credential lifecycle
 
 **Enrollment certificate** — A bootstrap certificate issued to a device so it can submit an Enrollment Request; it authorizes enrollment, not ongoing management.
 
@@ -67,13 +69,39 @@ _Avoid_: Issuing CSR
 
 **Exact leaf identity** — The unique identity of one presented enrollment-certificate leaf; it resolves to exactly one enrollment credential CSR and is independent of names and serial numbers.
 
-**Credential CSR binding** — The relationship stored on an Enrollment Request between that request and the enrollment credential CSR whose certificate authenticated its creation.
+### Enrollment Request and admission
 
 **Enrollment Request (ER)** — A device-submitted request for a management certificate whose approval creates the same-named Device.
 
 **Management-certificate CSR** — The CSR inside an Enrollment Request that requests the device's ongoing management certificate; it is not the enrollment credential CSR.
 
 **Enrollment Request submission** — A device's authenticated submission of an Enrollment Request through enrollment mTLS using its enrollment certificate.
+
+**Credential CSR binding** — The relationship stored on an Enrollment Request between that request and the enrollment credential CSR whose certificate authenticated its creation.
+
+**Enrollment Request approval** — Authorization of an Enrollment Request to create its same-named Device and management certificate; it may be manual or automatic.
+
+**Manual approval** — The existing human approval path; requests that match no policy or are blocked by a limit remain pending for it.
+
+**Admission** — The committed result of Enrollment Request approval: the same-named Device becomes enrolled and receives its management certificate.
+
+**LegacyUnknown** — The explicit state for historical admissions whose enrollment credential CSR identity cannot be trustworthily reconstructed.
+
+### Enrollment trust and revocation
+
+**TPM challenge** — An out-of-band proof that the requester controls the TPM key attested by an Enrollment Request's CSR; success is recorded as TPM verified.
+
+**TPM verified** — A server-verified boolean reflecting completed TPM enrollment evidence; it never upgrades the assurance of agent-reported identifiers.
+
+**Trust gate** — A server-verified prerequisite outside the match expression, such as TPM verified or an unrevoked enrollment certificate.
+
+**Enrollment revocation** — Security-officer revocation of an enrollment certificate, enforced at mTLS verification; it blocks new enrollment and rejects pending requests.
+
+**Flagging** — Marking automatically onboarded devices associated with a revoked enrollment certificate so operators can identify them.
+
+**Eviction** — Removal of an enrolled device's management access; enrollment revocation never evicts.
+
+## Automatic approval
 
 **Reported identifiers** — Device-supplied facts on an Enrollment Request, such as serial and product identifiers; they are policy-matching inputs, not trust evidence.
 
@@ -83,15 +111,13 @@ _Avoid_: Issuing CSR
 
 **Policy set** — The enabled EnrollmentApprovalPolicies that share one enrollment certificate and are evaluated together under exact-one-match.
 
-**Automatic approval** — Server-side approval of an Enrollment Request when the credential, exactly one matching enabled policy, all required gates, and quota checks pass.
-
-**Manual approval** — The existing human approval path; requests that match no policy or are blocked by a limit remain pending for it.
-
-**Policy provenance** — The policy name and version recorded when a policy causes an automatic admission.
-
 **Exact-one-match** — The runtime requirement that exactly one enabled policy for the credential passes; zero or multiple matches leave the request pending with a reason.
 
 **Provably disjoint** — The requirement that enabled policies sharing a certificate have match expressions whose overlap is statically provable to be empty.
+
+**Automatic approval** — Server-side approval of an Enrollment Request when the credential, exactly one matching enabled policy, all required gates, and quota checks pass.
+
+**Policy provenance** — The policy name and version recorded when a policy causes an automatic admission.
 
 **Label seal** — The one-time label assignment at automatic approval: static administrator labels plus explicitly allowed incoming keys, with static values winning.
 
@@ -108,21 +134,5 @@ _Avoid_: Issuing CSR
 **Limit-blocked** — An Enrollment Request that passed every automatic-approval criterion except quota and stays pending with the reason "auto-approve passed but was not approved due to limit."
 
 **Pending diagnostics** — The per-policy and aggregate reasons an Enrollment Request remains pending instead of being automatically approved.
-
-**Enrollment revocation** — Security-officer revocation of an enrollment certificate, enforced at mTLS verification; it blocks new enrollment and rejects pending requests.
-
-**Flagging** — Marking automatically onboarded devices associated with a revoked enrollment certificate so operators can identify them.
-
-**Eviction** — Removal of an enrolled device's management access; enrollment revocation never evicts.
-
-**TPM challenge** — An out-of-band proof that the requester controls the TPM key attested by an Enrollment Request's CSR; success is recorded as TPM verified.
-
-**TPM verified** — A server-verified boolean reflecting completed TPM enrollment evidence; it never upgrades the assurance of agent-reported identifiers.
-
-**Trust gate** — A server-verified prerequisite outside the match expression, such as TPM verified or an unrevoked enrollment certificate.
-
-**LegacyUnknown** — The explicit state for historical admissions whose enrollment credential CSR identity cannot be trustworthily reconstructed.
-
-**Admission** — The committed result of Enrollment Request approval: the same-named Device becomes enrolled and receives its management certificate.
 
 **Admission ledger** — The durable, immutable record of committed automatic admissions used for idempotency and audit.
