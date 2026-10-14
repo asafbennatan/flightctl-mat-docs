@@ -56,15 +56,24 @@
 
 **Enrollment certificate** — A bootstrap certificate issued to a device so it can submit an Enrollment Request; it authorizes enrollment, not ongoing management.
 
-**Issuing CSR** — The existing CertificateSigningRequest whose tenant-local name identifies an enrollment certificate; it is the credential identity.
+**Enrollment credential CSR** — The CertificateSigningRequest an administrator creates to request an enrollment certificate; its tenant-local name is the credential identity.
+_Avoid_: Issuing CSR
 
-**Issuance** — The committed result of signing an enrollment certificate, together with its server-owned issuance time.
+**Enrollment credential CSR creation** — An administrator's creation of an enrollment credential CSR; it requests a certificate but does not issue one.
 
-**Exact leaf identity** — The unique identity of one presented enrollment-certificate leaf; it resolves to exactly one issuing CSR and is independent of names and serial numbers.
+**Enrollment credential CSR approval** — Approval and signing of an enrollment credential CSR, which publishes certificate bytes to that CSR's status; enrollment credential CSRs are automatically approved.
 
-**Issuing-CSR binding** — The relationship stored on an Enrollment Request between that request and the issuing CSR of the enrollment certificate that authenticated its creation.
+**Enrollment certificate issuance** — The committed publication of an enrollment certificate and its server-owned issuance time to an enrollment credential CSR's status.
+
+**Exact leaf identity** — The unique identity of one presented enrollment-certificate leaf; it resolves to exactly one enrollment credential CSR and is independent of names and serial numbers.
+
+**Credential CSR binding** — The relationship stored on an Enrollment Request between that request and the enrollment credential CSR whose certificate authenticated its creation.
 
 **Enrollment Request (ER)** — A device-submitted request for a management certificate whose approval creates the same-named Device.
+
+**Management-certificate CSR** — The CSR inside an Enrollment Request that requests the device's ongoing management certificate; it is not the enrollment credential CSR.
+
+**Enrollment Request submission** — A device's authenticated submission of an Enrollment Request through enrollment mTLS using its enrollment certificate.
 
 **Reported identifiers** — Device-supplied facts on an Enrollment Request, such as serial and product identifiers; they are policy-matching inputs, not trust evidence.
 
@@ -94,7 +103,7 @@
 
 **Enrollment count** — The server-owned number of committed automatic approvals under a policy; it always increments and never resets.
 
-**Auto-approval window** — An optional per-policy number of days after certificate issuance during which automatic approval is allowed, independent of certificate validity.
+**Auto-approval window** — An optional per-policy number of days after enrollment certificate issuance during which automatic approval is allowed, independent of certificate validity.
 
 **Limit-blocked** — An Enrollment Request that passed every automatic-approval criterion except quota and stays pending with the reason "auto-approve passed but was not approved due to limit."
 
@@ -112,7 +121,7 @@
 
 **Trust gate** — A server-verified prerequisite outside the match expression, such as TPM verified or an unrevoked enrollment certificate.
 
-**LegacyUnknown** — The explicit state for historical admissions whose issuing CSR identity cannot be trustworthily reconstructed.
+**LegacyUnknown** — The explicit state for historical admissions whose enrollment credential CSR identity cannot be trustworthily reconstructed.
 
 **Admission** — The committed result of Enrollment Request approval: the same-named Device becomes enrolled and receives its management certificate.
 
