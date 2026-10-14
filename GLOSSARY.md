@@ -58,13 +58,27 @@
 
 **Issuing CSR** — The existing CertificateSigningRequest whose tenant-local name identifies an enrollment certificate; it is the credential identity.
 
+**Issuance** — The committed result of signing an enrollment certificate, together with its server-owned issuance time.
+
+**Exact leaf identity** — The unique identity of one presented enrollment-certificate leaf; it resolves to exactly one issuing CSR and is independent of names and serial numbers.
+
+**Issuing-CSR binding** — The relationship stored on an Enrollment Request between that request and the issuing CSR of the enrollment certificate that authenticated its creation.
+
 **Enrollment Request (ER)** — A device-submitted request for a management certificate whose approval creates the same-named Device.
 
+**Reported identifiers** — Device-supplied facts on an Enrollment Request, such as serial and product identifiers; they are policy-matching inputs, not trust evidence.
+
 **EnrollmentApprovalPolicy** — The administrator resource defining automatic approval rules for exactly one enrollment certificate.
+
+**Match expression** — A restricted boolean policy expression over reported identifiers; it never evaluates certificate identity or TPM status.
+
+**Policy set** — The enabled EnrollmentApprovalPolicies that share one enrollment certificate and are evaluated together under exact-one-match.
 
 **Automatic approval** — Server-side approval of an Enrollment Request when the credential, exactly one matching enabled policy, all required gates, and quota checks pass.
 
 **Manual approval** — The existing human approval path; requests that match no policy or are blocked by a limit remain pending for it.
+
+**Policy provenance** — The policy name and version recorded when a policy causes an automatic admission.
 
 **Exact-one-match** — The runtime requirement that exactly one enabled policy for the credential passes; zero or multiple matches leave the request pending with a reason.
 
@@ -84,14 +98,22 @@
 
 **Limit-blocked** — An Enrollment Request that passed every automatic-approval criterion except quota and stays pending with the reason "auto-approve passed but was not approved due to limit."
 
+**Pending diagnostics** — The per-policy and aggregate reasons an Enrollment Request remains pending instead of being automatically approved.
+
 **Enrollment revocation** — Security-officer revocation of an enrollment certificate, enforced at mTLS verification; it blocks new enrollment and rejects pending requests.
 
 **Flagging** — Marking automatically onboarded devices associated with a revoked enrollment certificate so operators can identify them.
 
 **Eviction** — Removal of an enrolled device's management access; enrollment revocation never evicts.
 
+**TPM challenge** — An out-of-band proof that the requester controls the TPM key attested by an Enrollment Request's CSR; success is recorded as TPM verified.
+
 **TPM verified** — A server-verified boolean reflecting completed TPM enrollment evidence; it never upgrades the assurance of agent-reported identifiers.
 
+**Trust gate** — A server-verified prerequisite outside the match expression, such as TPM verified or an unrevoked enrollment certificate.
+
 **LegacyUnknown** — The explicit state for historical admissions whose issuing CSR identity cannot be trustworthily reconstructed.
+
+**Admission** — The committed result of Enrollment Request approval: the same-named Device becomes enrolled and receives its management certificate.
 
 **Admission ledger** — The durable, immutable record of committed automatic admissions used for idempotency and audit.
