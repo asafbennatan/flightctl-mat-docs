@@ -10,7 +10,7 @@ Replacing the existing TPM machinery would duplicate a working flow and expand t
 
 ## Solution
 
-Keep the existing Enrollment Request TCG-chain verification, out-of-band gRPC challenge protocol, condition types, and client behavior. Before starting a challenge, resolve the mTLS peer certificate through the existing enrollment-signer and organization rules and require its exact issuing-CSR binding to match the binding stored on the named Enrollment Request. Capture the Enrollment Request version and exact CSR identity used to generate the challenge. Before committing success, atomically reload the current Enrollment Request, confirm that its version, CSR, credential binding, and challenge-eligible condition have not changed, and recheck enrollment revocation from authoritative state. Only then transition the existing TPM condition to verified. A revoked, mismatched, stale, unresolved, or unavailable credential prevents the verified transition without changing the public challenge protocol.
+Keep the existing Enrollment Request TCG-chain verification, out-of-band gRPC challenge protocol, condition types, and client behavior. Before starting a challenge, resolve the mTLS peer certificate through the existing enrollment-signer and organization rules and require its exact issuing-CSR binding to match the binding stored on the named Enrollment Request. Capture the Enrollment Request version and exact CSR identity used to generate the challenge. After the challenge response is checked, use one transactional status mutation that reloads the current Enrollment Request and, within that same mutation, confirms its version, CSR, credential binding, challenge-eligible condition, and unrevoked authoritative credential state before transitioning the existing TPM condition to verified. A revoked, mismatched, stale, unresolved, or unavailable credential prevents the verified transition without changing the public challenge protocol.
 
 ## User Stories
 
@@ -23,10 +23,10 @@ Keep the existing Enrollment Request TCG-chain verification, out-of-band gRPC ch
 7. As a security officer, I want the gRPC request to continue carrying only the Enrollment Request name, so that client-supplied credential identifiers cannot influence authorization.
 8. As a security officer, I want the presented enrollment leaf resolved by exact DER fingerprint, so that common names, serial collisions, or reused names cannot redirect the binding.
 9. As a security officer, I want an unresolved or ambiguous enrollment leaf rejected, so that unknown credentials cannot complete TPM verification.
-10. As a security officer, I want revocation rechecked immediately before `TPMVerified=True`, so that a credential revoked during a challenge cannot finish that challenge as verified.
+10. As a security officer, I want revocation checked inside the same mutation that sets `TPMVerified=True`, so that a credential revoked during a challenge cannot finish that challenge as verified.
 11. As a security officer, I want revocation, credential mismatch, and stale-state failures to leave the TPM condition unverified, so that the status never overstates TPM proof.
 12. As a security officer, I want authoritative-state failures to fail closed, so that a database outage cannot become an implicit TPM pass.
-13. As a security officer, I want the commit to use a compare-and-set-style status mutation, so that concurrent challenge writers cannot both claim success or overwrite newer Enrollment Request status.
+13. As a security officer, I want all final authorization checks and the verified transition in one compare-and-set-style status mutation, so that concurrent challenge writers cannot both claim success or overwrite newer Enrollment Request status.
 14. As a security officer, I want only the server-verified TPM condition consumed by approval policy, so that device-reported data can never impersonate TPM proof.
 15. As a security officer, I want no second TPM verifier, so that the existing chain and activate-credential implementation remains the single authoritative implementation.
 16. As an OT operator, I want credential and revocation errors reported distinctly from TPM proof failures, so that I can tell whether to fix the TPM or investigate the credential.
@@ -51,10 +51,10 @@ Keep the existing Enrollment Request TCG-chain verification, out-of-band gRPC ch
 - At challenge start, require the Enrollment Request to be pending and its existing TPM condition to be in the challenge-required state; already-verified requests and requests that failed initial TCG verification retain the current failure behavior.
 - Capture the Enrollment Request resource version and an exact identity of the CSR bytes used to generate the challenge.
 - Do not re-run the Enrollment Request CSR chain check during the gRPC challenge; the existing create-or-replace verification owns that check.
-- Commit success through one narrow, transactional Enrollment Request status mutation that reloads the current object and verifies the expected resource version, exact CSR identity, issuing-CSR binding, organization, and challenge-eligible condition before changing the condition.
+- Commit success through one narrow, transactional Enrollment Request status mutation that reloads the current object and verifies the expected resource version, exact CSR identity, issuing-CSR binding, organization, challenge-eligible condition, and authoritative unrevoked credential state before changing the condition.
 - Preserve unrelated current status fields and conditions during the TPM transition; do not write a stale full-status snapshot over a newer status.
 - Emit the existing Enrollment Request resource-updated event only after the TPM status mutation commits successfully. The admission worker treats that event as its normal re-evaluation trigger and reloads current state; no TPM-specific event reason is added.
-- Recheck enrollment revocation from authoritative primary-database state immediately before committing `TPMVerified=True`.
+- Do not split the final guards into a separate revocation lookup followed by a status write; that would reintroduce a check-then-write race.
 - Treat revoked, mismatched, unresolved, stale, and authoritative-state-unavailable conditions as terminal challenge errors; do not set `TPMVerified=True`.
 - Do not mislabel revocation, credential mismatch, or stale-state errors as TPM proof failures. Actual incorrect challenge responses retain the existing TPM challenge-failed condition.
 - Rely on the existing Enrollment Request status-update event to make completed TPM verification visible to later admission evaluation.
@@ -73,8 +73,8 @@ Keep the existing Enrollment Request TCG-chain verification, out-of-band gRPC ch
 - Test an actual wrong challenge secret to ensure it still produces the existing TPM challenge-failed condition rather than the new authorization or concurrency errors.
 - Test a CSR or resource-version replacement between challenge generation and response to ensure the new CSR is not marked verified and the client receives a deterministic error.
 - Test concurrent challenge completion so only one writer can commit success and later writers cannot overwrite newer status with a stale snapshot.
-- Test that a successful verified transition emits the existing resource-updated event and causes policy re-evaluation, while a failed compare-and-set attempt emits no success event.
-- Test revocation before challenge start and revocation during an in-flight challenge; both must prevent `TPMVerified=True`.
+- Test that a successful verified transition emits the existing resource-updated event and causes policy re-evaluation, while a failed final mutation emits no success event.
+- Test revocation before challenge start and revocation during an in-flight challenge; both must cause the single final mutation to reject `TPMVerified=True`.
 - Test authoritative-store unavailability to ensure the challenge fails closed.
 - Test that the agent's existing gRPC request and response messages require no protocol change.
 - Prior art is the existing Enrollment Request TPM gRPC handler tests, enrollment authentication middleware tests, Enrollment Request service and store tests, and revocation integration tests.
