@@ -53,6 +53,7 @@ Keep the existing Enrollment Request TCG-chain verification, out-of-band gRPC ch
 - Do not re-run the Enrollment Request CSR chain check during the gRPC challenge; the existing create-or-replace verification owns that check.
 - Commit success through one narrow, transactional Enrollment Request status mutation that reloads the current object and verifies the expected resource version, exact CSR identity, issuing-CSR binding, organization, and challenge-eligible condition before changing the condition.
 - Preserve unrelated current status fields and conditions during the TPM transition; do not write a stale full-status snapshot over a newer status.
+- Emit the existing Enrollment Request resource-updated event only after the TPM status mutation commits successfully. The admission worker treats that event as its normal re-evaluation trigger and reloads current state; no TPM-specific event reason is added.
 - Recheck enrollment revocation from authoritative primary-database state immediately before committing `TPMVerified=True`.
 - Treat revoked, mismatched, unresolved, stale, and authoritative-state-unavailable conditions as terminal challenge errors; do not set `TPMVerified=True`.
 - Do not mislabel revocation, credential mismatch, or stale-state errors as TPM proof failures. Actual incorrect challenge responses retain the existing TPM challenge-failed condition.
@@ -72,6 +73,7 @@ Keep the existing Enrollment Request TCG-chain verification, out-of-band gRPC ch
 - Test an actual wrong challenge secret to ensure it still produces the existing TPM challenge-failed condition rather than the new authorization or concurrency errors.
 - Test a CSR or resource-version replacement between challenge generation and response to ensure the new CSR is not marked verified and the client receives a deterministic error.
 - Test concurrent challenge completion so only one writer can commit success and later writers cannot overwrite newer status with a stale snapshot.
+- Test that a successful verified transition emits the existing resource-updated event and causes policy re-evaluation, while a failed compare-and-set attempt emits no success event.
 - Test revocation before challenge start and revocation during an in-flight challenge; both must prevent `TPMVerified=True`.
 - Test authoritative-store unavailability to ensure the challenge fails closed.
 - Test that the agent's existing gRPC request and response messages require no protocol change.
