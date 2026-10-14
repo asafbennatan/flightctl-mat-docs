@@ -164,3 +164,31 @@ These are the design's remaining review questions (Design §16). Each has a reco
 ❓ **Q24** - **Signoff**: Have the PRD amendments and prerequisite security approval been accepted?
 
 ➡️ **[open]** Product + Security. Obtain written acknowledgement; the draft revision is not proof of either.
+
+
+## Manual Enrollment Request rejection — clarification session
+
+### Settled decisions
+
+- Rejection applies only to pending Enrollment Requests. It does not revoke their enrollment certificate, affect other requests, or evict enrolled devices. Canonical term: Enrollment Request rejection; avoid ER revocation.
+- Decision reason, authenticated actor, and timestamp are populated by the service, not supplied as user or API inputs. Manual reasons are “Manually approved” and “Manually rejected”; certificate-revocation rejection remains distinct. This supersedes the recent PRD wording about administrator-supplied manual decision reasons.
+
+- Administrators may explicitly approve a manually rejected ER later, subject to credential validity and revocation checks. Agent updates, policy changes, and automatic approval never clear rejection.
+- First committed approval/rejection wins; the competitor receives a conflict. Rejection blocks stale automatic approval, and already approved requests cannot be rejected.
+
+- Rejection survives restarts, repeat submissions, and reported-data changes. The administrator-deletion-as-reset decision is withdrawn; recovery uses explicit approval of the existing rejected request.
+- Field devices must periodically check status and recover after explicit approval without a manual restart, at a controllable request rate.
+
+- Q9 settled: remain in enrollment polling with existing configurable backoff plus jitter; explicit administrator approval triggers unattended recovery.
+- Q11 settled: rejected requests cannot be deleted; explicit administrator approval reverses rejection.
+
+- Q12 settled: rejection and explicit manual approval use the existing enrollment-approval permission.
+- Q13 settled: repeat same decisions return the original result without changing actor/time; concurrent opposite decisions conflict.
+
+- Q14 settled: original rejection reason, actor, and time remain visible alongside the later explicit approval.
+
+### Interview status
+
+All identified branches are settled. Await final shared-understanding confirmation; implementation and separate technical-design reconciliation have not been performed.
+
+Request-scoped rejection is not a hardware blacklist; regenerating identity is outside the already agreed scope of per-ER rejection.
