@@ -59,7 +59,24 @@ if [[ -L "$legacy_domain_link" && "$(readlink "$legacy_domain_link")" == "$overl
   fi
 fi
 
-for relative in .scratch docs/adr GLOSSARY.md docs/agents; do
+# Migrate the former single-context glossary link. The multi-context overlay
+# owns GLOSSARY-MAP.md and the glossaries/ tree instead of root GLOSSARY.md.
+legacy_glossary="$worktree/GLOSSARY.md"
+if [[ -L "$legacy_glossary" && "$(readlink "$legacy_glossary")" == "$overlay_root/GLOSSARY.md" ]]; then
+  relative=GLOSSARY.md
+  source_path="$overlay_root/GLOSSARY.md"
+  destination="$legacy_glossary"
+  git -C "$worktree" ls-files -z -- "$relative" > "$temporary_paths"
+  tracked_paths=()
+  while IFS= read -r -d '' tracked_path; do
+    tracked_paths+=("$tracked_path")
+  done < "$temporary_paths"
+  hide_tracked_paths
+  rm -- "$legacy_glossary"
+  printf 'Removed legacy glossary link: %s\n' "$legacy_glossary"
+fi
+
+for relative in .scratch docs/adr GLOSSARY-MAP.md glossaries docs/agents; do
   source_path="$overlay_root/$relative"
   destination="$worktree/$relative"
   if [[ ! -e "$source_path" ]]; then

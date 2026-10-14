@@ -1,9 +1,9 @@
 # Flight Control local materials overlay
 
 This repository holds personal Flight Control materials that should stay out of
-flightctl/flightctl, including .scratch/, docs/adr/, GLOSSARY.md, and
-docs/agents/ configuration for the engineering skills. Keep this clone outside
-every Flight Control clone.
+flightctl/flightctl, including .scratch/, docs/adr/, GLOSSARY-MAP.md, the
+glossaries/ contexts, and docs/agents/ configuration for the engineering
+skills. Keep this clone outside every Flight Control clone.
 
 ## Install on each computer
 
@@ -57,7 +57,7 @@ configuration. Run it from the same docs checkout used to install the overlay.
 The linked paths are the files in this repository. Commit and push them from
 this repository:
 
-    git -C ~/src/flightctl-mat-docs add .scratch docs/adr GLOSSARY.md docs/agents
+    git -C ~/src/flightctl-mat-docs add .scratch docs/adr GLOSSARY-MAP.md glossaries docs/agents
     git -C ~/src/flightctl-mat-docs commit -m "Update local Flight Control materials"
     git -C ~/src/flightctl-mat-docs push
 

@@ -7,7 +7,7 @@ git diff --cached --no-renames --name-only -z --diff-filter=ACMR > "$temporary_p
 
 while IFS= read -r -d '' path; do
   case "$path" in
-    .scratch|.scratch/*|docs/adr|docs/adr/*|GLOSSARY.md|docs/agents|docs/agents/*)
+    .scratch|.scratch/*|docs/adr|docs/adr/*|GLOSSARY.md|GLOSSARY-MAP.md|glossaries|glossaries/*|docs/agents|docs/agents/*)
       printf 'Commit blocked: keep %s in the local materials repository.\n' "$path" >&2
       exit 1
       ;;
