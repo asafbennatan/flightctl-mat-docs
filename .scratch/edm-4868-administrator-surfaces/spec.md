@@ -31,7 +31,7 @@ Expose automatic approval through Flight Control’s existing resource interface
 17. As a fleet administrator, I want to list Enrollment Requests linked to a policy, so that I can see the devices a policy admitted.
 18. As a fleet administrator, I want to list Enrollment Requests linked to an enrollment credential, so that I can see the paper trail for a certificate.
 19. As a fleet administrator, I want to navigate from an approved Enrollment Request to its same-named Device, so that I can identify affected devices without a new relationship resource.
-20. As a security officer, I want to revoke an enrollment credential from the CLI, so that I can stop new devices from using it.
+20. As a security officer, I want to revoke an enrollment credential with `flightctl certificate revoke`, so that I can stop new devices from using it without introducing a top-level revoke command.
 21. As a security officer, I want to supply a revocation reason, so that operators and auditors can understand why the credential was revoked.
 22. As a security officer, I want revocation to be idempotent, so that retrying the operation cannot duplicate work or overwrite the original reason, actor, or time.
 23. As a security officer, I want to see the revocation actor, time, and reason, so that I can audit the action.
@@ -67,9 +67,9 @@ Expose automatic approval through Flight Control’s existing resource interface
 - Store indexes support the new selector paths so credential inventory and policy or revocation tracing do not become unbounded scans.
 - `status.enrollmentCertificateName` is a reference to the issuing enrollment CSR’s `metadata.name`. It is not a certificate fingerprint, common name, or device management CSR name.
 - Policy-linked devices are found by filtering Enrollment Requests by policy or credential and then using the existing same-name Enrollment Request-to-Device relationship.
-- The certificate command is organized into request and revoke subcommands while preserving the existing request behavior.
+- The certificate command is organized into `certificate request` and `certificate revoke` subcommands while preserving the existing request behavior.
 - Certificate request output reports the actual, possibly uniquified CSR name and the certificate expiry while preserving the existing agent configuration output.
-- Certificate revoke accepts the CSR name and reason, invokes the Part E revocation contract, and reports the immutable revocation result. It does not add an un-revoke operation.
+- Certificate revoke is exposed as `flightctl certificate revoke`, not as a top-level `flightctl revoke` command. Its required inputs are the issuing CSR name and revocation reason; it invokes the Part E revocation contract and reports the immutable revocation result. It does not add an un-revoke operation.
 - Clients supply the configured enrollment signer value when filtering credential inventory. This part does not add a server-resolved signer-name field.
 - Generated API clients and types are updated from the OpenAPI specification so external consumers and the later UI work can use the same contracts.
 - User documentation adds a dedicated automatic approval guide and updates the existing enrollment, certificate, security, API-resource, and CLI references.
