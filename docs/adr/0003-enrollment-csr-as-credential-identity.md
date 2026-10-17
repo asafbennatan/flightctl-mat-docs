@@ -15,30 +15,33 @@ A dedicated EnrollmentCertificate resource would duplicate CSR inventory and
 issuance while requiring migration of existing credentials.
 A fingerprint or UUID identity would add a second identifier beside the
 existing tenant-local primary key.
-The issuer carries the exact CSR name and the enrollment-credential details
-needed on the Enrollment Request in its signed enrollment certificate.
-Enrollment Request creation reads those details from the already authenticated
-certificate/context without an additional CSR identity or details lookup.
+The issuer attests the exact CSR name in its signed enrollment certificate.
+Enrollment Request creation reads that identity from the already authenticated
+certificate/context to set the optional `status.enrollmentCertificateName`
+reference, its only origin signal, without an identity-discovery or row-existence
+lookup.
 Device-supplied request-body fields are not trusted replacements.
 
-Only when those signed details are absent, attempt to recover them from the
+Only when that signed identity is absent, attempt to recover it from the
 issuing enrollment CSR within the authenticated tenant/organization. Decode its
 retained issued certificate and match the exact presented leaf; a matching
 common name or the ER's device-management CSR is not sufficient proof.
-A unique actual issuing-CSR match supplies its existing identity and recoverable
-details without certificate reissuance. Such a request is not legacy solely
-because its certificate predates signed metadata; other policy eligibility
-requirements still apply, and missing data must not be invented.
+A unique actual issuing-CSR match supplies the same reference without
+certificate reissuance. Missing identity must not be invented.
 
-If no unique trustworthy match is available, create the Enrollment Request
-without unrecoverable details and explicitly mark it as legacy.
-Legacy Enrollment Requests are ineligible for EnrollmentApprovalPolicy approval.
+If reliable identity cannot be established, create the Enrollment Request with
+the reference absent, as on pre-feature requests without saved origin.
+There is no separate ER-origin classification or automatic backfill of stored
+requests that lack the presented leaf.
+Consumers requiring the CSR can filter out requests without the reference, then
+resolve the referred CSR's authoritative state. Reference presence is only a
+readiness prefilter: it does not prove the target still exists, is unrevoked,
+has known issuance time, or meets other policy eligibility requirements.
+A deleted or dangling target is unavailable when the consumer resolves it.
 Missing metadata alone neither rejects an otherwise valid certificate nor
 prevents Enrollment Request creation; ordinary certificate/mTLS authentication,
 existing revocation checks, and Enrollment Request persistence are unchanged.
 Operational errors are not identity proof; existing error handling is unchanged.
-This recovery applies to new ER creation with the presented leaf, not retroactive
-reconstruction of stored ERs that lack that evidence.
 
 ## Consequences
 

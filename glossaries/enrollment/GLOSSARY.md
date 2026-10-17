@@ -29,9 +29,6 @@ _Avoid_: Issuing CSR
 
 **Credential CSR binding** — The relationship stored on an Enrollment Request between that request and the enrollment credential CSR whose certificate authenticated its creation.
 
-**Legacy Enrollment Request**:
-An Enrollment Request whose required enrollment-credential identity or details remain unavailable after supported recovery. It is explicitly marked legacy, is ineligible for enrollment approval policies, and is distinct from the historical-admission state `LegacyUnknown`.
-
 **Enrollment Request approval** — Authorization of an Enrollment Request to create its same-named Device and management certificate; it may be manual or automatic.
 
 **Manual approval** — The existing human approval path; requests that match no policy or are blocked by a limit remain pending for it.

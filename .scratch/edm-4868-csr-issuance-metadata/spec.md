@@ -56,7 +56,7 @@ Extend the existing CertificateSigningRequest status contract with an optional, 
 - Do not add a new database resource, event, public route, approval method, revocation endpoint, or transaction callback.
 - Defer signer-filtered CSR inventory. If that capability is needed later, `spec.signerName` is the natural selector field, but adding it is not required to publish issuance metadata.
 - Preserve the existing certificate bytes in CSR status so later work can derive the exact enrollment leaf identity.
-- Carry the exact CSR name and credential details needed on the Enrollment Request in the issuer-signed enrollment certificate, so ER creation reads them from its already authenticated certificate/context without an extra CSR identity/details lookup when present. Only when those signed details are absent, use the tenant-scoped exact-leaf recovery in [ADR 0003](../../docs/adr/0003-enrollment-csr-as-credential-identity.md); a unique match can recover existing details without reissuance, subject to other policy eligibility requirements. If no unique trustworthy match is available, create and explicitly mark a legacy ER without unrecoverable details; it is ineligible for enrollment approval policies, not rejected for missing metadata.
+- Carry the exact CSR identity in the issuer-signed enrollment certificate so ER creation sets its optional issuing-CSR reference from the authenticated certificate/context without an identity-discovery or row-existence lookup. Only when signed identity is absent, use the tenant-scoped exact-leaf recovery in [ADR 0003](../../docs/adr/0003-enrollment-csr-as-credential-identity.md); a unique match supplies the same reference without reissuance. Otherwise create the ER with the reference absent, not a separate origin classification. CSR-dependent consumers filter by the required reference and resolve authoritative CSR state; reference presence alone does not establish policy eligibility.
 
 ## Testing Decisions
 
@@ -90,5 +90,5 @@ Extend the existing CertificateSigningRequest status contract with an optional, 
 ## Further Notes
 
 - Respects ADR 0003 (reuse the enrollment CSR as the credential identity) and ADR 0008 (issuance-based auto-approval window).
-- This part supplies issuance evidence and the certificate-carried credential details needed at ER creation. Revocation and mTLS behavior remain separate decisions.
+- This part supplies issuance evidence and the certificate-carried CSR identity used to set the optional ER reference. Revocation and mTLS behavior remain separate decisions.
 - A CSR with certificate bytes but no `issuedAt` is a legacy issuance record. Later consumers must represent that state explicitly and fail closed where issuance time is required.
