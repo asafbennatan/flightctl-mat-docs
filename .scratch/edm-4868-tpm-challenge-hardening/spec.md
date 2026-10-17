@@ -10,7 +10,7 @@ Replacing the existing TPM machinery would duplicate a working flow and expand t
 
 ## Solution
 
-Keep the existing Enrollment Request TCG-chain verification, out-of-band gRPC challenge protocol, condition types, and client protocol behavior. Before starting a challenge, read the mTLS leaf's issuer-attested credential binding under the enrollment-signer and organization rules and require it to match the binding stored on the named Enrollment Request. Do not discover identity by searching certificate inventory. Capture the Enrollment Request version and exact management-certificate CSR bytes used to generate the challenge. After the challenge response is checked, use one transactional status mutation that reloads the current Enrollment Request and, within that same mutation, confirms its version, CSR, credential binding, challenge-eligible condition, and unrevoked authoritative credential state before transitioning the existing TPM condition to verified. Invalid signed identity, a revoked or missing credential, mismatched or stale evidence, or unavailable state prevents the verified transition without changing the public challenge protocol. Legacy enrollment leaves need replacement under the shared compatibility boundary.
+Keep the existing Enrollment Request TCG-chain verification, out-of-band gRPC challenge protocol, condition types, and client behavior. Before starting a challenge, resolve the mTLS peer certificate through the existing enrollment-signer and organization rules and require its exact issuing-CSR binding to match the binding stored on the named Enrollment Request. Capture the Enrollment Request version and exact CSR identity used to generate the challenge. After the challenge response is checked, use one transactional status mutation that reloads the current Enrollment Request and, within that same mutation, confirms its version, CSR, credential binding, challenge-eligible condition, and unrevoked authoritative credential state before transitioning the existing TPM condition to verified. A revoked, mismatched, stale, unresolved, or unavailable credential prevents the verified transition without changing the public challenge protocol.
 
 ## User Stories
 
@@ -21,8 +21,8 @@ Keep the existing Enrollment Request TCG-chain verification, out-of-band gRPC ch
 5. As a fleet administrator, I want an actual failed TPM challenge to retain the existing failed-condition behavior, so that operators can still distinguish a TPM proof failure from a credential or concurrency error.
 6. As a security officer, I want the gRPC path to enforce the same enrollment-signer and organization rules as Enrollment Request creation, so that gRPC is not a weaker authentication route.
 7. As a security officer, I want the gRPC request to continue carrying only the Enrollment Request name, so that client-supplied credential identifiers cannot influence authorization.
-8. As a security officer, I want the credential binding read from the authenticated leaf's issuer-controlled signed identity, so that common names, serial collisions, or request-supplied names cannot redirect the binding.
-9. As a security officer, I want missing, invalid, duplicate, conflicting, or unsupported signed identity rejected, so that unknown or ambiguous credential evidence cannot complete TPM verification.
+8. As a security officer, I want the presented enrollment leaf resolved by exact DER fingerprint, so that common names, serial collisions, or reused names cannot redirect the binding.
+9. As a security officer, I want an unresolved or ambiguous enrollment leaf rejected, so that unknown credentials cannot complete TPM verification.
 10. As a security officer, I want revocation checked inside the same mutation that sets `TPMVerified=True`, so that a credential revoked during a challenge cannot finish that challenge as verified.
 11. As a security officer, I want revocation, credential mismatch, and stale-state failures to leave the TPM condition unverified, so that the status never overstates TPM proof.
 12. As a security officer, I want authoritative-state failures to fail closed, so that a database outage cannot become an implicit TPM pass.
@@ -33,7 +33,7 @@ Keep the existing Enrollment Request TCG-chain verification, out-of-band gRPC ch
 17. As an OT operator, I want existing agents to continue using the same gRPC method and messages, so that the hardening does not require an agent upgrade or protocol migration.
 18. As an OT operator, I want a replaced Enrollment Request to require a new challenge, so that a retry after replacement has clear, deterministic behavior.
 19. As an auditor, I want the verified condition to identify the exact Enrollment Request transition rather than a generic certificate result, so that admission history remains traceable.
-20. As a Flight Control engineer, I want the HTTP and gRPC enrollment paths to share signed-identity and authoritative credential-state rules, so that signer, organization, binding, and retained-leaf checks cannot drift apart.
+20. As a Flight Control engineer, I want the HTTP and gRPC enrollment paths to share identity and credential-resolution rules, so that signer, organization, and fingerprint behavior cannot drift apart.
 21. As a Flight Control engineer, I want the status commit to use the repository's normal typed mutation behavior, so that the feature does not introduce a new general transaction framework.
 22. As a Flight Control engineer, I want the challenge handler to remain the primary seam, so that tests exercise the externally visible gRPC behavior rather than private helpers.
 23. As a Flight Control engineer, I want the existing TPM status update event to drive later policy evaluation, so that no duplicate event reason or worker trigger is added.
@@ -41,12 +41,12 @@ Keep the existing Enrollment Request TCG-chain verification, out-of-band gRPC ch
 ## Implementation Decisions
 
 - Keep the existing Enrollment Request TCG-chain verification and the existing out-of-band gRPC activate-credential challenge as the only TPM verification path.
-- Do not add a new TPM service, verifier, challenge protocol, public API, gRPC method, request field, event reason, or protocol migration. Obtaining a compatible enrollment credential under the shared signed-identity boundary is still required.
+- Do not add a new TPM service, verifier, challenge protocol, public API, gRPC method, request field, event reason, or client migration.
 - Continue to authenticate the challenge from the mTLS peer certificate rather than a request-supplied credential identifier.
 - Apply the existing enrollment authentication rules to the gRPC challenge: the leaf must be signed by the configured enrollment signer and carry or inherit the same organization semantics used by Enrollment Request creation.
-- Reuse the HTTP enrollment path's issuer-attested credential binding rules from [ADR 0003](../../docs/adr/0003-enrollment-csr-as-credential-identity.md); extract shared internal code only where it removes duplication without creating a new public interface.
-- Read the exact enrollment credential CSR name from trusted leaf/context with no CSR identity-discovery read. Reject missing, malformed, duplicate, conflicting, or unsupported metadata with no legacy database fallback. The separate Part E authoritative state barrier uses that tenant/name to validate existence, issuance, non-revocation, and the exact retained issued leaf.
-- Require the credential CSR binding stored on the Enrollment Request at creation to equal the attested binding from the gRPC peer certificate in the same authenticated tenant.
+- Reuse the enrollment identity and exact leaf-to-issuing-CSR resolution rules already needed by the HTTP enrollment path; extract shared internal code only where it removes duplication without creating a new public interface.
+- Resolve the presented leaf to its issuing CSR by exact DER fingerprint against retained issued certificate bytes. This is a database lookup, not verification of the issuing CSR.
+- Require the issuing-CSR binding stored on the Enrollment Request at creation to equal the issuing CSR resolved from the gRPC peer certificate.
 - Do not match credentials by common name, organization name alone, serial number, or client-supplied CSR name.
 - At challenge start, require the Enrollment Request to be pending and its existing TPM condition to be in the challenge-required state; already-verified requests and requests that failed initial TCG verification retain the current failure behavior.
 - Capture the Enrollment Request resource version and an exact identity of the CSR bytes used to generate the challenge.
@@ -55,7 +55,7 @@ Keep the existing Enrollment Request TCG-chain verification, out-of-band gRPC ch
 - Preserve unrelated current status fields and conditions during the TPM transition; do not write a stale full-status snapshot over a newer status.
 - Emit the existing Enrollment Request resource-updated event only after the TPM status mutation commits successfully. The admission worker treats that event as its normal re-evaluation trigger and reloads current state; no TPM-specific event reason is added.
 - Do not split the final guards into a separate revocation lookup followed by a status write; that would reintroduce a check-then-write race.
-- Treat invalid signed identity, missing or revoked credentials, mismatched evidence, stale state, and authoritative-state unavailability as terminal challenge errors; do not set `TPMVerified=True`.
+- Treat revoked, mismatched, unresolved, stale, and authoritative-state-unavailable conditions as terminal challenge errors; do not set `TPMVerified=True`.
 - Do not mislabel revocation, credential mismatch, or stale-state errors as TPM proof failures. Actual incorrect challenge responses retain the existing TPM challenge-failed condition.
 - Rely on the existing Enrollment Request status-update event to make completed TPM verification visible to later admission evaluation.
 - Keep the existing management-certificate TPM verifier separate; this part changes only the Enrollment Request challenge path.
@@ -67,7 +67,7 @@ Keep the existing Enrollment Request TCG-chain verification, out-of-band gRPC ch
 - Use the existing TPM challenge gRPC handler as the primary service seam, backed by real enrollment certificates and the real Enrollment Request store for integration coverage.
 - Add mTLS integration coverage for the complete handshake and stream: a matching enrollment credential succeeds, a different valid enrollment credential is rejected, and a non-enrollment-signer certificate is rejected.
 - Test organization isolation so a credential from one organization cannot challenge an Enrollment Request in another organization.
-- Test signed credential binding for missing, malformed, duplicate, conflicting, unsupported, or cross-tenant metadata, legacy leaves and requests without a binding, and common-name or serial collisions. Confirm no certificate-inventory discovery fallback; separately test missing records and issued-leaf mismatch at authoritative state barriers.
+- Test exact-credential binding for unresolved leaves, ambiguous fingerprints, legacy requests without a binding, and common-name or serial collisions.
 - Test the successful path to ensure the existing verified condition, reason, message, and status-update event remain unchanged.
 - Test existing precondition behavior for a missing condition, an already-verified request, and a request whose initial TCG verification failed.
 - Test an actual wrong challenge secret to ensure it still produces the existing TPM challenge-failed condition rather than the new authorization or concurrency errors.
@@ -87,7 +87,7 @@ Keep the existing Enrollment Request TCG-chain verification, out-of-band gRPC ch
 - CSR issuance metadata (Part D).
 - Enrollment revocation state, TLS enforcement, pending-request rejection, and affected-device flagging (Part E).
 - Replacing or redesigning the TPM chain verification, activate-credential challenge, or gRPC protocol.
-- Verifying the enrollment credential CSR; this part only reads issuer-attested identity, compares bindings, and consumes authoritative credential-state checks.
+- Verifying the issuing enrollment CSR; this part only resolves and compares identities.
 - Adding a new public authorization interface, credential resource, event type, or general transaction framework.
 - Changing management-certificate TPM verification, certificate issuance, certificate lifetime, or certificate renewal.
 - Backfilling issuance or credential bindings for historical Enrollment Requests.
@@ -96,6 +96,6 @@ Keep the existing Enrollment Request TCG-chain verification, out-of-band gRPC ch
 ## Further Notes
 
 - Part C stores the issuing-CSR binding when an Enrollment Request is created; this part consumes that binding.
-- Part D supplies signed credential identity, and Part E supplies authoritative credential-state barriers. This part consumes both at challenge start and checks state again inside the verified-transition mutation rather than reimplementing them.
-- Issuer-attested identity is read without a discovery query; it does not verify the Enrollment Request CSR, replace the existing TCG-chain verification, or prove current record existence/non-revocation. The gRPC stream and HTTP enrollment share the same legacy-credential rejection boundary.
+- Part E supplies authoritative revocation state and the exact leaf-to-CSR lookup; this part invokes that behavior at challenge start and again before the verified transition rather than reimplementing it.
+- The exact DER fingerprint lookup identifies the credential that authenticated the gRPC stream. It does not verify the Enrollment Request CSR or replace the existing TCG-chain verification.
 - The gRPC request continues to name only the Enrollment Request. Credential identity comes exclusively from the authenticated mTLS connection.

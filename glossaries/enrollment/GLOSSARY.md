@@ -17,11 +17,7 @@ _Avoid_: Issuing CSR
 
 **Enrollment certificate issuance** — The committed publication of an enrollment certificate and its server-owned issuance time to an enrollment credential CSR's status.
 
-**Issuer-attested credential binding**:
-The enrollment issuer's signed assertion that an enrollment certificate belongs to a particular enrollment credential CSR in its tenant. It establishes credential identity, not current permission to enroll.
-
-**Exact leaf identity**:
-The identity of one specific enrollment-certificate leaf, distinct from the enrollment credential CSR's identity. A common name or serial number alone does not identify that leaf.
+**Exact leaf identity** — The unique identity of one presented enrollment-certificate leaf; it resolves to exactly one enrollment credential CSR and is independent of names and serial numbers.
 
 ### Enrollment Request and admission
 
@@ -32,6 +28,9 @@ The identity of one specific enrollment-certificate leaf, distinct from the enro
 **Enrollment Request submission** — A device's authenticated submission of an Enrollment Request through enrollment mTLS using its enrollment certificate.
 
 **Credential CSR binding** — The relationship stored on an Enrollment Request between that request and the enrollment credential CSR whose certificate authenticated its creation.
+
+**Legacy Enrollment Request**:
+An Enrollment Request explicitly marked as lacking required enrollment-credential details in its otherwise valid enrollment certificate. It is ineligible for enrollment approval policies and is distinct from the historical-admission state `LegacyUnknown`.
 
 **Enrollment Request approval** — Authorization of an Enrollment Request to create its same-named Device and management certificate; it may be manual or automatic.
 

@@ -1,20 +1,11 @@
 # EDM-4868 grill-with-docs record
 
-Historical source: the EDM-4868 PRD and technical design (revision 7) in
-`flightctl/design-docs` PRs #59 and #61 supplied the original answers.
-Later local amendments are proposed changes, not assertions that those parent
-drafts have already incorporated them or that security approval was granted.
-Answers marked **[settled]** record a chosen direction; answers marked
-**[open]** still require stakeholder decisions.
-
-For credential identity and legacy compatibility, current guidance in this
-overlay is [ADR 0003](../docs/adr/0003-enrollment-csr-as-credential-identity.md)
-and its linked issuance specification. It replaces the parent design's
-common-name/candidate-CSR discovery and legacy identity-recovery guidance.
-Those parent passages remain historical alternatives for this proposal, not
-fallback instructions. Parent design/PRD/testplan alignment must explicitly
-carry this amendment before they are used as the implementation contract;
-this record does not silently update those separate drafts.
+Auto-filled from the EDM-4868 PRD and technical design (revision 7) in
+`flightctl/design-docs` PRs #59 and #61.
+Answers marked **[settled]** are decisions already recorded in those documents;
+answers marked **[open]** still require stakeholder decisions.
+This record exists so outside stakeholders can see the questions the design
+already answers and the questions that remain.
 
 ## Round 1 — Trust foundation
 
@@ -26,7 +17,7 @@ this record does not silently update those separate drafts.
 
 ❓ **Q2** - **Credential identity resource**: Do we introduce an EnrollmentCertificate resource?
 
-➡️ **[settled]** No. The existing enrollment-signer CSR's tenant-local name is the credential identity; CSR status gains issuance time and a revocation subresource. EnrollmentApprovalPolicy is the only new top-level resource. [ADR 0003](../docs/adr/0003-enrollment-csr-as-credential-identity.md) records the issuer-controlled signed binding: ER creation reads exact identity from authenticated leaf/context without a CSR discovery read. Authoritative revocation and missing-state checks remain separate and mandatory. Legacy leaves without supported signed identity require a compatible newly issued credential under a new CSR name; historical unknown admissions remain `LegacyUnknown`, without affecting existing device management. (Design §1, §2.1, §4)
+➡️ **[settled]** No. The existing enrollment-signer CSR's tenant-local name is the credential identity; CSR status gains issuance time and a revocation subresource. EnrollmentApprovalPolicy is the only new top-level resource. (Design §1, §2.1, §4; ADR 0003)
 
 ---
 
