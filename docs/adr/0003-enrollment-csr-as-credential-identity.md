@@ -26,6 +26,12 @@ are normalized and need not preserve the exact resource name.
 HTTP fields, request-body names, and caller-supplied CSR extensions cannot
 establish this binding.
 
+This proposal supersedes the lookup-based binding and legacy identity-recovery
+guidance in the parent technical design referenced by the grill record.
+The parent draft's common-name candidate search is a historical alternative,
+not an additional resolution path. This ADR does not assert that the separate
+parent design, PRD, or testplan has already been amended or approved.
+
 ## Consequences
 
 `EnrollmentApprovalPolicy.spec.certificateName` and Enrollment Request status

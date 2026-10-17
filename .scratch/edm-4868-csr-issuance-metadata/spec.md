@@ -71,6 +71,7 @@ Extend the existing CertificateSigningRequest status contract with an optional, 
 
 ### Compatibility boundary
 
+- This proposed contract replaces the parent design's common-name/candidate lookup and legacy identity-recovery alternatives, as recorded in [ADR 0003](../../docs/adr/0003-enrollment-csr-as-credential-identity.md). Parent design/PRD/testplan references are historical input where they differ; they are not implicit compatibility exceptions or evidence of approval of this amendment.
 - Certificates without the required supported signed identity are incompatible with new enrollment operations, including on existing connections and resumed sessions. Reject them without a CN, serial, request-body, or database-discovery fallback. This is a deliberate change from accepting historical enrollment certificates, not a claim that current code already rejects them.
 - Historical CSRs remain readable; do not backfill `issuedAt`, mutate an already-issued leaf, or re-sign an issued CSR to retrofit identity. Obtain a compatible newly issued enrollment credential under a new CSR name and recreate pending requests that lack a trustworthy binding.
 - Historical admissions whose binding cannot be trustworthily reconstructed remain `LegacyUnknown`. Do not infer it from management certificates. Existing admitted devices, their management-certificate renewal, and non-eviction semantics are unchanged.

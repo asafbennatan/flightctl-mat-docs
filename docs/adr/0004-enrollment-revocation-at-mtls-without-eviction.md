@@ -16,9 +16,11 @@ This check runs on resumed sessions too; signed identity is not proof of
 current existence or non-revocation.
 CRL and OCSP were rejected because they add distribution infrastructure and
 staleness without improving this single-service control plane.
-Deleting the CSR row is not revocation: the service signs certificates and
-separately deletes database rows today, so deletion alone cannot revoke a
-certificate.
+At the inspected implementation baseline, signing and database-row deletion
+are separate, and deletion does not revoke an issued certificate.
+Under this proposal, missing primary state blocks authentication, but deleting
+a row is still not the revocation operation: it neither records revocation
+audit nor schedules pending-request rejection and affected-device flagging.
 
 Enrollment Request creation carries the attested binding from authenticated
 context without a separate CSR identity-discovery read.

@@ -1,11 +1,20 @@
 # EDM-4868 grill-with-docs record
 
-Auto-filled from the EDM-4868 PRD and technical design (revision 7) in
-`flightctl/design-docs` PRs #59 and #61.
-Answers marked **[settled]** are decisions already recorded in those documents;
-answers marked **[open]** still require stakeholder decisions.
-This record exists so outside stakeholders can see the questions the design
-already answers and the questions that remain.
+Historical source: the EDM-4868 PRD and technical design (revision 7) in
+`flightctl/design-docs` PRs #59 and #61 supplied the original answers.
+Later local amendments are proposed changes, not assertions that those parent
+drafts have already incorporated them or that security approval was granted.
+Answers marked **[settled]** record a chosen direction; answers marked
+**[open]** still require stakeholder decisions.
+
+For credential identity and legacy compatibility, current guidance in this
+overlay is [ADR 0003](../docs/adr/0003-enrollment-csr-as-credential-identity.md)
+and its linked issuance specification. It replaces the parent design's
+common-name/candidate-CSR discovery and legacy identity-recovery guidance.
+Those parent passages remain historical alternatives for this proposal, not
+fallback instructions. Parent design/PRD/testplan alignment must explicitly
+carry this amendment before they are used as the implementation contract;
+this record does not silently update those separate drafts.
 
 ## Round 1 — Trust foundation
 
