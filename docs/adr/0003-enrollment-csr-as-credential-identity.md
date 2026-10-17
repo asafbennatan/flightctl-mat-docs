@@ -21,13 +21,24 @@ Enrollment Request creation reads those details from the already authenticated
 certificate/context without an additional CSR identity or details lookup.
 Device-supplied request-body fields are not trusted replacements.
 
-Legacy certificates remain usable when those details are absent: create the
-Enrollment Request without the missing details and explicitly mark it as legacy.
+Only when those signed details are absent, attempt to recover them from the
+issuing enrollment CSR within the authenticated tenant/organization. Decode its
+retained issued certificate and match the exact presented leaf; a matching
+common name or the ER's device-management CSR is not sufficient proof.
+A unique actual issuing-CSR match supplies its existing identity and recoverable
+details without certificate reissuance. Such a request is not legacy solely
+because its certificate predates signed metadata; other policy eligibility
+requirements still apply, and missing data must not be invented.
+
+If no unique trustworthy match is available, create the Enrollment Request
+without unrecoverable details and explicitly mark it as legacy.
 Legacy Enrollment Requests are ineligible for EnrollmentApprovalPolicy approval.
-Do not invent missing details or discover them through a database fallback.
 Missing metadata alone neither rejects an otherwise valid certificate nor
 prevents Enrollment Request creation; ordinary certificate/mTLS authentication,
 existing revocation checks, and Enrollment Request persistence are unchanged.
+Operational errors are not identity proof; existing error handling is unchanged.
+This recovery applies to new ER creation with the presented leaf, not retroactive
+reconstruction of stored ERs that lack that evidence.
 
 ## Consequences
 

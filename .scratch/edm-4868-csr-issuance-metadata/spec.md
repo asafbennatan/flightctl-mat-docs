@@ -56,7 +56,7 @@ Extend the existing CertificateSigningRequest status contract with an optional, 
 - Do not add a new database resource, event, public route, approval method, revocation endpoint, or transaction callback.
 - Defer signer-filtered CSR inventory. If that capability is needed later, `spec.signerName` is the natural selector field, but adding it is not required to publish issuance metadata.
 - Preserve the existing certificate bytes in CSR status so later work can derive the exact enrollment leaf identity.
-- Carry the exact CSR name and credential details needed on the Enrollment Request in the issuer-signed enrollment certificate, so ER creation reads them from its already authenticated certificate/context without an extra CSR identity/details lookup. If those details are absent, create and explicitly mark a legacy ER without them; it is ineligible for enrollment approval policies, not rejected for missing metadata. See [ADR 0003](../../docs/adr/0003-enrollment-csr-as-credential-identity.md).
+- Carry the exact CSR name and credential details needed on the Enrollment Request in the issuer-signed enrollment certificate, so ER creation reads them from its already authenticated certificate/context without an extra CSR identity/details lookup when present. Only when those signed details are absent, use the tenant-scoped exact-leaf recovery in [ADR 0003](../../docs/adr/0003-enrollment-csr-as-credential-identity.md); a unique match can recover existing details without reissuance, subject to other policy eligibility requirements. If no unique trustworthy match is available, create and explicitly mark a legacy ER without unrecoverable details; it is ineligible for enrollment approval policies, not rejected for missing metadata.
 
 ## Testing Decisions
 
