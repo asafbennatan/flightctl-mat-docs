@@ -17,7 +17,11 @@ _Avoid_: Issuing CSR
 
 **Enrollment certificate issuance** — The committed publication of an enrollment certificate and its server-owned issuance time to an enrollment credential CSR's status.
 
-**Exact leaf identity** — The unique identity of one presented enrollment-certificate leaf; it resolves to exactly one enrollment credential CSR and is independent of names and serial numbers.
+**Issuer-attested credential binding**:
+The enrollment issuer's signed assertion that an enrollment certificate belongs to a particular enrollment credential CSR in its tenant. It establishes credential identity, not current permission to enroll.
+
+**Exact leaf identity**:
+The identity of one specific enrollment-certificate leaf, distinct from the enrollment credential CSR's identity. A common name or serial number alone does not identify that leaf.
 
 ### Enrollment Request and admission
 

@@ -66,6 +66,7 @@ Expose automatic approval through Flight Control’s existing resource interface
 - The field selectors use the existing selector resolver and list machinery. They do not introduce bespoke query endpoints or a new relationship resource.
 - Store indexes support the new selector paths so credential inventory and policy or revocation tracing do not become unbounded scans.
 - `status.enrollmentCertificateName` is a reference to the issuing enrollment CSR’s `metadata.name`. It is not a certificate fingerprint, common name, or device management CSR name.
+- Explain that new Enrollment Requests obtain this exact name from the authenticated leaf's issuer-attested credential binding, not from a caller-supplied field or a CSR discovery query. Signed identity does not prove current authorization; primary-state revocation and missing-record barriers still apply.
 - Policy-linked devices are found by filtering Enrollment Requests by policy or credential and then using the existing same-name Enrollment Request-to-Device relationship.
 - The certificate command is organized into `certificate request` and `certificate revoke` subcommands while preserving the existing request behavior.
 - Certificate request output reports the actual, possibly uniquified CSR name and the certificate expiry while preserving the existing agent configuration output.
@@ -74,6 +75,7 @@ Expose automatic approval through Flight Control’s existing resource interface
 - Generated API clients and types are updated from the OpenAPI specification so external consumers and the later UI work can use the same contracts.
 - User documentation adds a dedicated automatic approval guide and updates the existing enrollment, certificate, security, API-resource, and CLI references.
 - Documentation explains opt-in setup, policy matching, TPM as a separate trust gate, reported-field assurance limits, label sealing, quota, issuance-based windows, revocation, flagging, manual fallback, and non-eviction.
+- Document the explicit compatibility boundary: enrollment leaves without supported signed identity cannot start or continue new enrollment operations and have no legacy database-discovery fallback. Operators obtain a compatible newly issued credential under a new CSR name and recreate unbound pending requests; historical unknown admissions remain `LegacyUnknown`. Do not re-sign or backfill old issuance evidence. Existing devices and management-certificate renewal remain unchanged.
 - Documentation uses the mapped glossary terminology for Enrollment Request, issuing CSR, EnrollmentApprovalPolicy, automatic approval, trust gate, enrollment revocation, and flagging without eviction.
 - No new event type, public authorization interface, credential resource, admission route, or general mutation framework is introduced.
 

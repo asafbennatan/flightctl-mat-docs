@@ -17,7 +17,7 @@ already answers and the questions that remain.
 
 ❓ **Q2** - **Credential identity resource**: Do we introduce an EnrollmentCertificate resource?
 
-➡️ **[settled]** No. The existing enrollment-signer CSR's tenant-local name is the credential identity; CSR status gains issuance time and a revocation subresource. EnrollmentApprovalPolicy is the only new top-level resource. (Design §1, §2.1, §4; ADR 0003)
+➡️ **[settled]** No. The existing enrollment-signer CSR's tenant-local name is the credential identity; CSR status gains issuance time and a revocation subresource. EnrollmentApprovalPolicy is the only new top-level resource. [ADR 0003](../docs/adr/0003-enrollment-csr-as-credential-identity.md) records the issuer-controlled signed binding: ER creation reads exact identity from authenticated leaf/context without a CSR discovery read. Authoritative revocation and missing-state checks remain separate and mandatory. Legacy leaves without supported signed identity require a compatible newly issued credential under a new CSR name; historical unknown admissions remain `LegacyUnknown`, without affecting existing device management. (Design §1, §2.1, §4)
 
 ---
 

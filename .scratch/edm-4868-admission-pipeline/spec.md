@@ -8,7 +8,7 @@ Fleet administrators need Enrollment Requests to approve themselves when exactly
 
 ## Solution
 
-Wire automatic approval to the existing Enrollment Request lifecycle. When an agent submits an Enrollment Request, the service resolves and stores its issuing-CSR binding from authenticated context, then emits the existing resource-created event. A worker consumes that existing event, evaluates the current enabled policies for that certificate, records pending diagnostics immediately, and when exactly one policy passes all gates, invokes the same approval operation used by manual approval with an internal automatic source and policy provenance. The existing approval path is extended internally to accept that automatic source; its public REST contract stays unchanged. Manual approval continues to use the authenticated username, while automatic approval records the approving policy in `approvedBy` and keeps structured policy name and resource-version fields for querying and audit.
+Wire automatic approval to the existing Enrollment Request lifecycle. When an agent submits an Enrollment Request, the service reads the issuer-attested credential binding from authenticated leaf/context and stores it without a CSR identity-discovery database read, then emits the existing resource-created event. Authoritative credential-state checks and ER persistence remain required. A worker consumes that existing event, evaluates the current enabled policies for that certificate, records pending diagnostics immediately, and when exactly one policy passes all gates, invokes the same approval operation used by manual approval with an internal automatic source and policy provenance. The existing approval path is extended internally to accept that automatic source; its public REST contract stays unchanged. Manual approval continues to use the authenticated username, while automatic approval records the approving policy in `approvedBy` and keeps structured policy name and resource-version fields for querying and audit.
 
 ## User Stories
 
@@ -30,7 +30,7 @@ Wire automatic approval to the existing Enrollment Request lifecycle. When an ag
 16. As an OT operator, I want policy changes to reevaluate pending requests, so that raising or removing a limit can unblock eligible devices.
 17. As an OT operator, I want report changes and completed TPM verification to reevaluate pending requests, so that newly available evidence can produce an approval.
 18. As an OT operator, I want manual approval to keep its current behavior, so that automatic approval does not change the existing human workflow.
-19. As a security officer, I want the issuing-CSR binding resolved from authenticated context during ER creation, so that a device cannot select another credential.
+19. As a security officer, I want the enrollment credential CSR binding read from issuer-attested leaf/context during ER creation, so that a device cannot select another credential and no identity-discovery database read is added.
 20. As a security officer, I want worker retries to be idempotent, so that duplicate events cannot approve twice or double-count quota.
 21. As a security officer, I want automatic approval to commit the certificate, Device, Enrollment Request, ledger, counter, and outbox atomically, so that a partial admission is never observable.
 22. As a security officer, I want final admission to revalidate the current policy set and quota under lock, so that a stale worker evaluation cannot approve against changed policy state.
@@ -43,7 +43,9 @@ Wire automatic approval to the existing Enrollment Request lifecycle. When an ag
 
 ## Implementation Decisions
 
-- Enrollment Request creation resolves the authenticated enrollment credential to its tenant-local issuing CSR and persists that binding before emitting the existing resource-created event. No separate public binding method is introduced.
+- Enrollment Request creation reads the exact tenant-local enrollment credential CSR name from the authenticated leaf's signed binding and persists it before emitting the existing resource-created event. No CSR identity-discovery query, request-supplied identity, normalized-CN inference, legacy lookup fallback, or separate public binding method is introduced. Follow [ADR 0003](../../docs/adr/0003-enrollment-csr-as-credential-identity.md) for invalid/duplicate/unsupported metadata and compatibility behavior.
+- Keep the Part E authoritative state barrier inside ER creation and subsequent mutations, keyed directly by the attested or stored tenant/name. It checks missing/revoked state and retained issued-leaf evidence without discovering or selecting a CSR identity. A prior handshake or identity cache hit cannot authorize a mutation after revocation commits.
+- Preserve the stored binding through ER updates; caller-supplied status cannot replace it. Historical admissions without a trustworthy binding remain `LegacyUnknown`; pending requests without one must be recreated with a compatible credential, not retroactively bound from a body name or management certificate.
 - Automatic evaluation is triggered by the existing Enrollment Request lifecycle events and by EnrollmentApprovalPolicy lifecycle events. No new event reason or event type is added for this feature.
 - The worker task matches Enrollment Request created and updated events by involved-object kind and reason, and matches policy changes by policy kind and certificate binding. Policy changes find pending Enrollment Requests for the affected certificate.
 - The existing `EnrollmentRequestApproved` event remains a post-approval event for downstream work such as enrollment-hook notification; it is not used to trigger evaluation.
@@ -66,6 +68,7 @@ Wire automatic approval to the existing Enrollment Request lifecycle. When an ag
 
 - Good tests assert external behavior through the worker task and the existing Enrollment Request approval service. They do not assert transaction internals, lock order, SQL text, or private helper shapes.
 - The primary test seam is the automatic-admission worker task: existing event matching, policy evaluation, diagnostics, automatic-source approval, and idempotent retry behavior.
+- At ER creation, test trusted signed binding propagation with no identity-discovery read, rejected spoofed or incompatible identity, preserved binding on update, and explicit historical `LegacyUnknown`. Separately test authoritative state checks, including missing/revoked records and unavailable state, so avoiding discovery never removes admission control.
 - The existing approval-service seam is tested for manual/automatic source handling, `approvedBy` policy references, structured provenance, label seal, Device creation, status conditions, and event emission.
 - Integration tests exercise the full event-to-commit path with the real policy engine and store adapters: created and updated Enrollment Request events, policy-change reevaluation, TPM completion, limit increase/removal, exact-one-match, ambiguity, candidate-error isolation, window boundary, quota exhaustion, rollback, and duplicate-event idempotency.
 - Concurrency tests use deterministic overlapping transactions rather than sleeps. They cover final-slot admission, policy updates during evaluation, duplicate worker delivery, and rollback consistency across ER, Device, ledger, count, and outbox.
