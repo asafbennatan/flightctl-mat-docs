@@ -27,7 +27,7 @@ _Avoid_: Issuing CSR
 
 **Enrollment Request submission** — A device's authenticated submission of an Enrollment Request through enrollment mTLS using its enrollment certificate.
 
-**Credential CSR binding** — The relationship stored on an Enrollment Request between that request and the enrollment credential CSR whose certificate authenticated its creation.
+**Credential CSR binding** — The optional reference from an Enrollment Request to the enrollment credential CSR whose certificate authenticated its creation.
 
 **Enrollment Request approval** — Authorization of an Enrollment Request to create its same-named Device and management certificate; it may be manual or automatic.
 
@@ -39,8 +39,6 @@ _Avoid_: ER revocation
 **Manual rejection override** — An administrator's explicit approval of a previously manually rejected Enrollment Request, while its enrollment credential remains valid and unrevoked. Automatic processing cannot perform this override.
 
 **Admission** — The committed result of Enrollment Request approval: the same-named Device becomes enrolled and receives its management certificate.
-
-**LegacyUnknown** — The explicit state for historical admissions whose enrollment credential CSR identity cannot be trustworthily reconstructed.
 
 ### Enrollment trust and revocation
 

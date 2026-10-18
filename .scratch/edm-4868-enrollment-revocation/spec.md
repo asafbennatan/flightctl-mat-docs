@@ -30,7 +30,7 @@ Add an enrollment-only revocation subresource to the existing CertificateSigning
 16. As an OT operator, I want management-certificate renewal to continue after enrollment revocation, so that already enrolled devices remain manageable.
 17. As an OT operator, I want service-client authentication unchanged, so that revoking an enrollment credential does not break control-plane integrations.
 18. As an auditor, I want the issuing CSR, Enrollment Request, policy provenance, and same-named Device to remain traceable, so that I can reconstruct which automatic admissions used the credential.
-19. As an auditor, I want historical admissions without a trustworthy issuing-CSR binding represented as legacy unknown, so that the system does not silently link them to a revoked credential.
+19. As an auditor, I want historical admissions without a stored issuing-CSR reference to retain that absence, so that the system does not silently link them to a revoked credential.
 20. As an API consumer, I want to read revocation state from the normal CSR representation, so that I do not need a separate credential resource.
 21. As an API consumer, I want an idempotent revocation operation with clear validation errors, so that automation can safely retry or report invalid targets.
 22. As a Flight Control engineer, I want the issuing CSR to remain the credential identity, so that revocation does not introduce a second public identifier.
@@ -68,7 +68,7 @@ Add an enrollment-only revocation subresource to the existing CertificateSigning
 - Use a durable revocation-work record and existing worker/task infrastructure; no new domain event type is required.
 - Process consequence work idempotently in bounded batches, with recovery after worker restarts.
 - Block deletion or name reuse of an enrollment CSR while a policy, retained Enrollment Request history, or revocation record depends on it.
-- Represent historical admissions whose issuing CSR cannot be trustworthily reconstructed as `LegacyUnknown`; do not retroactively bind them to a revoked credential.
+- Keep absent issuing-CSR references absent on historical Enrollment Requests; do not classify those requests separately or retroactively bind them to a revoked credential.
 - Do not implement CRL or OCSP distribution.
 - Do not provide un-revocation in this part.
 - The five-minute bound is an operational maximum for durable Device-flag materialization, not an admission grace period.
@@ -78,7 +78,7 @@ Add an enrollment-only revocation subresource to the existing CertificateSigning
 - Good tests assert externally visible TLS, CSR, Enrollment Request, and Device behavior. They do not test private helper names, SQL text, lock order, or queue internals.
 - Use a real mTLS integration seam for handshake behavior: unrevoked enrollment, revoked enrollment, unresolved leaf, authoritative-store unavailability, session resumption, and non-enrollment signers.
 - Test the CSR service for revocation validation, idempotency, immutable fields, permission handling, wrong-signer rejection, and unissued-certificate rejection.
-- Test Enrollment Request behavior using the stored issuing-CSR binding: immediate rejection projection, blocked approval, unchanged approved requests, and legacy-unknown handling.
+- Test Enrollment Request behavior using the stored issuing-CSR binding: immediate rejection projection, blocked approval, unchanged approved requests, and unchanged requests with no issuing-CSR reference.
 - Test final admission concurrency so revocation committed before admission blocks the admission, while an admission already committed remains enrolled and is flagged.
 - Test the consequence worker for pending-request rejection, Device flagging, batching, retry, duplicate delivery, and crash recovery.
 - Test that automatically onboarded Devices receive the revocation flag and that manually approved Devices do not.
@@ -99,7 +99,7 @@ Add an enrollment-only revocation subresource to the existing CertificateSigning
 - A new public credential resource, alternate credential identifier, or public authorization interface.
 - Un-revocation or revocation of management/service-client certificates.
 - Device eviction, quarantine, or stopping management-certificate renewal.
-- Reconstructing legacy admissions with unknown issuing-CSR bindings.
+- Reconstructing historical admission provenance where no issuing-CSR reference was stored.
 - Signer-filtered CSR inventory.
 - A new general mutation framework or transaction callback exposed to callers.
 

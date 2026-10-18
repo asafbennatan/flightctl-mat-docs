@@ -59,7 +59,7 @@ Keep the existing Enrollment Request TCG-chain verification, out-of-band gRPC ch
 - Do not mislabel revocation, credential mismatch, or stale-state errors as TPM proof failures. Actual incorrect challenge responses retain the existing TPM challenge-failed condition.
 - Rely on the existing Enrollment Request status-update event to make completed TPM verification visible to later admission evaluation.
 - Keep the existing management-certificate TPM verifier separate; this part changes only the Enrollment Request challenge path.
-- Pending Enrollment Requests created without a trustworthy issuing-CSR binding fail closed and are not retroactively bound; operators must recreate such requests after the binding behavior is available.
+- Enrollment Requests without an issuing-CSR reference remain unchanged and are not retroactively bound; challenge paths requiring that reference fail closed, without a separate origin classification or a requirement to recreate the request.
 
 ## Testing Decisions
 
@@ -67,7 +67,7 @@ Keep the existing Enrollment Request TCG-chain verification, out-of-band gRPC ch
 - Use the existing TPM challenge gRPC handler as the primary service seam, backed by real enrollment certificates and the real Enrollment Request store for integration coverage.
 - Add mTLS integration coverage for the complete handshake and stream: a matching enrollment credential succeeds, a different valid enrollment credential is rejected, and a non-enrollment-signer certificate is rejected.
 - Test organization isolation so a credential from one organization cannot challenge an Enrollment Request in another organization.
-- Test exact-credential binding for unresolved leaves, ambiguous fingerprints, legacy requests without a binding, and common-name or serial collisions.
+- Test exact-credential binding for unresolved leaves, ambiguous fingerprints, requests without an issuing-CSR reference, and common-name or serial collisions.
 - Test the successful path to ensure the existing verified condition, reason, message, and status-update event remain unchanged.
 - Test existing precondition behavior for a missing condition, an already-verified request, and a request whose initial TCG verification failed.
 - Test an actual wrong challenge secret to ensure it still produces the existing TPM challenge-failed condition rather than the new authorization or concurrency errors.

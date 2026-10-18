@@ -49,6 +49,6 @@ Operational errors are not identity proof; existing error handling is unchanged.
 reference CSR names.
 Names referenced by policies or retained enrollment and revocation history are
 reserved so deletion and recreation cannot retarget relationships.
-Historical admissions whose issuing CSR identity cannot be reconstructed
-remain explicitly `LegacyUnknown` rather than being linked through a
-management certificate.
+Historical admissions without a stored issuing-CSR reference retain that
+absence, not a separate origin classification. Unknown credential provenance
+is not reconstructed from a management certificate or later polling.
