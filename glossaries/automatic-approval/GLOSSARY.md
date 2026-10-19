@@ -20,11 +20,11 @@ This context describes the policies that automatically approve Enrollment Reques
 
 **Policy provenance** — The policy name and version recorded when a policy causes an automatic admission.
 
-**Label seal** — The one-time label assignment at automatic approval: static administrator labels plus explicitly allowed incoming keys, with static values winning.
+**Label seal** — The one-time label assignment at automatic approval: static administrator labels plus explicitly allowed ER-reported labels, with static values winning.
 
 **Static device labels** — Administrator-defined labels a policy always applies at automatic approval.
 
-**Allowed incoming labels** — Exact Enrollment Request label keys an administrator explicitly permits through the label seal; unlisted keys are dropped.
+**Allowed incoming labels** — ER-reported labels whose exact key an administrator explicitly permits through the label seal; ER-reported labels with unlisted keys are dropped.
 
 **Approval limit** — An optional per-policy lifetime maximum of automatic approvals; omitted means unlimited and zero blocks automatic approval.
 
