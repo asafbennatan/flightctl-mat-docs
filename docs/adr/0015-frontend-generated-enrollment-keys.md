@@ -2,13 +2,14 @@
 status: proposed
 ---
 
-# Generate enrollment keys in the frontend with CSR-only issuance
+# Generate enrollment keys and CSRs in the frontend
 
 The enrollment credential UI generates an ECDSA P-256 key pair and a PKCS#10
-CSR in the browser. It submits only the CSR through the existing CSR API and
-offers the private key to the operator for device provisioning. The server
-never receives, stores, logs, provisions, or exports the private key, and the
-browser does not persist it beyond the issuance flow.
+CSR in the browser. The CSR API remains unchanged: the UI submits only the CSR
+through the existing CertificateSigningRequest endpoint, and the server never
+receives, stores, logs, provisions, or exports the private key. The browser
+does not persist the key beyond the issuance flow, and the operator receives
+it only for device provisioning.
 
 Server-side key provisioning was rejected because it would make the Flight
 Control control plane a long-term secret custodian. Operator-local command-only
