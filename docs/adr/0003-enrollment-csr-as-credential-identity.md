@@ -8,8 +8,9 @@ EDM-4868 does not introduce an EnrollmentCertificate resource.
 The tenant-local `metadata.name` of the existing enrollment-signer
 CertificateSigningRequest is the enrollment-credential identity.
 The design extends that CSR's status with issuance time and a revocation
-subresource instead of duplicating CSR inventory, issuance, and signer flow
-in a new resource.
+operation whose committed result is exposed in the CSR's public status,
+instead of duplicating CSR inventory, issuance, and signer flow in a new
+resource.
 
 A dedicated EnrollmentCertificate resource would duplicate CSR inventory and
 issuance while requiring migration of existing credentials.
