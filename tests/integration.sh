@@ -123,6 +123,8 @@ test_installation_and_linked_worktree_propagation() {
     [[ $(readlink "$worktree/$overlay_path") == "$OVERLAY_ROOT/$overlay_path" ]] ||
       fail "new worktree linked $overlay_path to the wrong overlay path"
   done
+  [[ -f "$worktree/docs/agents/coding-standards.md" ]] ||
+    fail 'new linked worktree did not receive the shared coding standards'
   assert_contains post-checkout "$marker"
   [[ $(grep -Fxc post-checkout "$marker") -eq 1 ]] || fail 'post-checkout hook chaining ran more than once'
   [[ -z $(git -C "$worktree" status --porcelain) ]] || fail 'overlay links made the new worktree appear dirty'

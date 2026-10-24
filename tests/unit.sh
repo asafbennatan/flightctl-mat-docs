@@ -17,7 +17,7 @@ test_pre_commit_allows_code_changes() {
 
 test_pre_commit_blocks_overlay_changes() {
   local path slug repo output
-  for path in .scratch/notes.md docs/adr/0001.md GLOSSARY.md GLOSSARY-MAP.md glossaries glossaries/enrollment/GLOSSARY.md docs/agents docs/agents/issue-tracker.md; do
+  for path in .scratch/notes.md docs/adr/0001.md GLOSSARY.md GLOSSARY-MAP.md glossaries glossaries/enrollment/GLOSSARY.md docs/agents docs/agents/coding-standards.md docs/agents/issue-tracker.md; do
     slug=${path//\//_}
     repo="$TEST_TMP/pre-commit-$slug"
     output="$TEST_TMP/pre-commit-$slug.out"
@@ -83,7 +83,24 @@ test_pre_push_blocks_overlay_changes() {
   done
 }
 
+test_pre_commit_blocks_coding_standards() {
+  local repo="$TEST_TMP/pre-commit-coding-standards"
+  local output="$TEST_TMP/pre-commit-coding-standards.out"
+  new_repo "$repo"
+  mkdir -p "$repo/docs/agents"
+  printf 'local coding standards\n' > "$repo/docs/agents/coding-standards.md"
+  git -C "$repo" add -f -- docs/agents/coding-standards.md
+
+  if (cd -- "$repo" && "$OVERLAY_ROOT/scripts/guard-pre-commit") > "$output" 2>&1; then
+    fail 'pre-commit guard accepted the shared coding standards path'
+  fi
+  assert_contains 'Commit blocked:' "$output"
+  assert_contains 'docs/agents/coding-standards.md' "$output"
+  pass 'pre-commit blocks the shared coding standards path'
+}
+
 test_pre_commit_allows_code_changes
 test_pre_commit_blocks_overlay_changes
 test_pre_push_allows_code_changes
 test_pre_push_blocks_overlay_changes
+test_pre_commit_blocks_coding_standards
