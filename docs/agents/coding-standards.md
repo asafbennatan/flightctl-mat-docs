@@ -82,6 +82,14 @@ Read the universal standards first, then read the section for the area you are c
 29. Generate Helm metadata from `.gotmpl` sources. Do not hand-edit generated chart files.
 30. Keep quadlet unit ordering and configuration in sync with deployment scripts, preserving idempotency and error handling.
 
+## Review scope
+
+31. Treat review-scope growth as a judgment call, not a counting exercise. Before expanding a fix, note whether it adds new files, new test files, or crosses subsystems, and explain why the existing files are insufficient. Pause and ask when the change is broader than the underlying finding.
+32. Classify each review finding as correctness, coverage, or style. Correctness findings may expand the diff; coverage and style findings should reuse existing files unless they test a new boundary.
+33. Prefer extending an existing test file over creating a new one. Create a new test file only for a new package, a new integration boundary, or a distinct external contract.
+34. Report generated files separately from hand-written files so the diff’s apparent size is not misleading.
+35. When a change crosses more than three subsystems, add a one-paragraph impact note naming the affected areas and why the feature requires them. If the impact is review-driven rather than feature-required, ask before proceeding.
+
 ## Verification
 
 Run the checks that apply to the area you touched. At minimum, use `make lint` and the relevant test target.
