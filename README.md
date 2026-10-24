@@ -3,7 +3,8 @@
 This repository holds personal Flight Control materials that should stay out of
 flightctl/flightctl, including .scratch/, docs/adr/, GLOSSARY-MAP.md, the
 glossaries/ contexts, and docs/agents/ configuration for the engineering
-skills. Keep this clone outside every Flight Control clone.
+skills, such as docs/agents/coding-standards.md. Keep this clone outside every
+Flight Control clone.
 
 ## Install on each computer
 
