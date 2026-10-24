@@ -17,7 +17,7 @@ _Avoid_: Issuing CSR
 
 **Enrollment certificate issuance** — The committed publication of an enrollment certificate and its server-owned issuance time to an enrollment credential CSR's status.
 
-**Enrollment private key** — The private key whose public key appears in an enrollment credential CSR; its operator keeps it outside Flight Control when creating the CSR.
+**Enrollment private key** — The private key paired with an enrollment credential CSR; its operator keeps the generated key outside Flight Control's control plane.
 
 **Exact leaf identity** — The unique identity of one presented enrollment-certificate leaf; it resolves to exactly one enrollment credential CSR and is independent of names and serial numbers.
 
