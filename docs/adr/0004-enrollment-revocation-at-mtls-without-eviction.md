@@ -21,5 +21,7 @@ Requests with a reason, and flags automatically onboarded devices within five
 minutes of revocation.
 It never removes an enrolled Device, stops management-certificate renewal, or
 touches service-client behavior.
-Flagging is identification for operators, not quarantine; documentation must
-state this distinction explicitly.
+Flagging uses the server-owned Device enrollment-credential projection
+(ADR 0016) and is identification for operators, not quarantine. Operators can
+dismiss an individual flag without reversing revocation (ADR 0017);
+documentation must state both distinctions explicitly.
