@@ -112,7 +112,7 @@ Report actual observed image digests through the subsystem that owns each image,
 - Resolve workload identity from immutable runtime content. Reference-based Podman inspection of a moving tag is insufficient evidence of the running container. An immutable-reference fallback after failed CRI inspection is not automatically verified observation evidence.
 - For VM applications, collect targets from the native Quadlet representation and carry the resolved RunAs owner to the Podman path. Do not introduce a .kube representation for VMs.
 - Keep Helm chart resolution in its chart-cache path; apply delta behavior only to the rendered workload images that are collected as CRI image targets.
-- Keep top-level Podman artifact handling on the existing full artifact path. A supplied image-delta hint for such an artifact reports Fallback with a reason before the full artifact pull; without a failed hint, it reports NotUsed. Nested image targets remain independently eligible.
+- Keep top-level Compose bundles and Helm charts on their regular preparation paths, ignore image-delta hints, and contribute neutral NotRequired without joining workload aggregation. Quadlet parent artifacts retain policy-aware full artifact handling and report Fallback for supplied image-delta hints. Nested image targets remain independently eligible.
 - Do not broaden incomplete generic .kube target collection as part of this change. Existing generic .kube behavior remains separate from native Quadlet VM handling.
 
 ## Testing Decisions
