@@ -16,18 +16,17 @@ A dedicated EnrollmentCertificate resource would duplicate CSR inventory and
 issuance while requiring migration of existing credentials.
 A fingerprint or UUID identity would add a second identifier beside the
 existing tenant-local primary key.
-The issuer attests the exact CSR name in its signed enrollment certificate.
-Enrollment Request creation reads that identity from the already authenticated
-certificate/context to set the optional `status.enrollmentCertificateName`
-reference, its only origin signal, without an identity-discovery or row-existence
-lookup.
+Enrollment Request creation resolves the issuing CSR from the already
+authenticated enrollment certificate by tenant-scoped exact-DER matching
+against the CSR's retained issued certificate. The resolved row supplies the
+CSR name for the optional `status.enrollmentCertificateName` reference.
+A certificate-carried CSR-name extension is not required: revocation and policy
+eligibility still require authoritative CSR state, so a signed name would not
+remove the database dependency.
 Device-supplied request-body fields are not trusted replacements.
 
-Only when that signed identity is absent, attempt to recover it from the
-issuing enrollment CSR within the authenticated tenant/organization. Decode its
-retained issued certificate and match the exact presented leaf; a matching
-common name or the ER's device-management CSR is not sufficient proof.
-A unique actual issuing-CSR match supplies the same reference without
+A matching common name or the ER's device-management CSR is not sufficient
+proof. A unique actual issuing-CSR match supplies the reference without
 certificate reissuance. Missing identity must not be invented.
 
 If reliable identity cannot be established, create the Enrollment Request with
@@ -39,10 +38,10 @@ resolve the referred CSR's authoritative state. Reference presence is only a
 readiness prefilter: it does not prove the target still exists, is unrevoked,
 has known issuance time, or meets other policy eligibility requirements.
 A deleted or dangling target is unavailable when the consumer resolves it.
-Missing metadata alone neither rejects an otherwise valid certificate nor
-prevents Enrollment Request creation; ordinary certificate/mTLS authentication,
-existing revocation checks, and Enrollment Request persistence are unchanged.
-Operational errors are not identity proof; existing error handling is unchanged.
+When revocation enforcement is enabled, failure to resolve the issuing CSR or
+determine its revocation state fails closed. Otherwise, missing metadata alone
+neither rejects an otherwise valid certificate nor prevents Enrollment Request
+creation. Operational errors are not identity proof.
 
 ## Consequences
 
