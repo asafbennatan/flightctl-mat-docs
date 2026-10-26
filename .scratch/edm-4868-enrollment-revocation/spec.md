@@ -8,7 +8,7 @@ Security officers need to stop a compromised or retired enrollment credential fr
 
 ## Solution
 
-Add an enrollment-only revocation subresource to the existing CertificateSigningRequest. A security officer commits immutable revocation state and durable consequence work in one transaction. The shared agent TLS configuration gains a revocation check that resolves a presented enrollment leaf to its issuing CSR by exact DER fingerprint and rejects revoked or unresolved credentials against the primary database. Enrollment Requests use the issuing-CSR binding already stored by the admission pipeline; this part adds no new CSR verification or authorization interface. Pending Enrollment Requests bound to a revoked CSR become rejected with a reason, and automatically onboarded Devices are flagged within five minutes. Revocation never removes a Device or stops its management-certificate renewal.
+Add an enrollment-only revocation subresource to the existing CertificateSigningRequest. A security officer commits immutable revocation state and durable consequence work in one transaction. Enrollment authentication resolves a presented enrollment leaf to its issuing CSR by exact DER fingerprint and rejects revoked or unresolved credentials. A short-lived shared status cache serves repeated checks across replicas; a committed revocation invalidates the cached status, and unavailable authoritative state fails closed. Enrollment Requests use the issuing-CSR binding already stored by the admission pipeline; this part adds no new CSR verification or authorization interface. Pending Enrollment Requests bound to a revoked CSR become rejected with a reason, and automatically onboarded Devices are flagged within five minutes. Revocation never removes a Device or stops its management-certificate renewal.
 
 ## User Stories
 
@@ -35,8 +35,8 @@ Add an enrollment-only revocation subresource to the existing CertificateSigning
 21. As an API consumer, I want an idempotent revocation operation with clear validation errors, so that automation can safely retry or report invalid targets.
 22. As a Flight Control engineer, I want the issuing CSR to remain the credential identity, so that revocation does not introduce a second public identifier.
 23. As a Flight Control engineer, I want the Enrollment Request’s stored issuing-CSR binding to be the approval-time input, so that Part E does not duplicate or verify CSR binding.
-24. As a Flight Control engineer, I want the TLS check installed at the shared agent termination seam, so that HTTP and gRPC enrollment paths receive the same enforcement.
-25. As a Flight Control engineer, I want the existing enrollment identity cache to cache identity only, so that it cannot bypass revocation.
+24. As a Flight Control engineer, I want the check installed in the enrollment authentication path shared by HTTP and gRPC, so that both surfaces receive the same enforcement.
+25. As a Flight Control engineer, I want revocation checks to use a short-lived shared status cache with revocation-driven invalidation, so that repeated enrollment requests avoid a primary-database query while committed revocation takes effect promptly.
 26. As a Flight Control engineer, I want established connections rechecked before enrollment work is committed, so that a connection accepted before revocation cannot complete admission afterward.
 27. As a Flight Control engineer, I want durable consequence work instead of a new event type, so that recovery does not depend on a domain event remaining in a queue.
 28. As a Flight Control engineer, I want revocation and consequence scheduling committed atomically, so that a revoked CSR can never be observable without its follow-up work.
@@ -52,11 +52,11 @@ Add an enrollment-only revocation subresource to the existing CertificateSigning
 - Preserve the existing CSR approval and issuance history; revocation adds an enrollment-credential condition rather than rewriting issuance state.
 - Resolve a presented enrollment leaf to its issuing CSR using an exact DER fingerprint lookup against the retained issued certificate bytes. This is a lookup, not CSR verification.
 - Do not use common name, issuer, or serial number as the sole revocation identity.
-- Query authoritative primary-database revocation state on every enrollment handshake, including resumed sessions.
-- Fail closed for revoked credentials, unresolved leaf-to-CSR mappings, and authoritative-store unavailability.
-- Install the check at the shared agent TLS termination configuration so HTTP and gRPC inherit the same behavior.
+- Enrollment authentication checks the issuing CSR's committed revocation state through a short-lived shared status cache keyed by the authenticated tenant and exact certificate digest.
+- A committed revocation invalidates the cached status before subsequent enrollment authentication.
+- A cache miss loads authoritative CSR status through exact-leaf resolution; revoked credentials, ambiguous or unresolved leaves, and unavailable authoritative state fail closed.
+- Install the check in the enrollment authentication path shared by HTTP and gRPC, including resumed sessions.
 - Apply the check only to enrollment-signer leaves; management, management-renewal, and service-client paths retain their existing behavior.
-- Keep the existing enrollment identity cache for identity only. It must not cache an unrevoked decision.
 - Recheck revocation in Enrollment Request create, update, approval, TPM completion, and final admission paths so established connections cannot complete new enrollment after revocation.
 - Use the issuing-CSR binding stored on the Enrollment Request by the admission pipeline. Do not introduce a new public binding method or a new CSR verification step.
 - Project pending Enrollment Requests bound to a revoked CSR as rejected on read and block their approval while durable materialization is pending.
@@ -76,7 +76,8 @@ Add an enrollment-only revocation subresource to the existing CertificateSigning
 ## Testing Decisions
 
 - Good tests assert externally visible TLS, CSR, Enrollment Request, and Device behavior. They do not test private helper names, SQL text, lock order, or queue internals.
-- Use a real mTLS integration seam for handshake behavior: unrevoked enrollment, revoked enrollment, unresolved leaf, authoritative-store unavailability, session resumption, and non-enrollment signers.
+- Use a real mTLS integration seam for enrollment authentication behavior: unrevoked enrollment, revoked enrollment, unresolved leaf, authoritative-store unavailability, cache hits across replicas, cache invalidation on revocation, session resumption, and non-enrollment signers.
+- Test status-cache misses, invalidation, and unavailable-cache fallback so revocation status remains authoritative.
 - Test the CSR service for revocation validation, idempotency, immutable fields, permission handling, wrong-signer rejection, and unissued-certificate rejection.
 - Test Enrollment Request behavior using the stored issuing-CSR binding: immediate rejection projection, blocked approval, unchanged approved requests, and unchanged requests with no issuing-CSR reference.
 - Test final admission concurrency so revocation committed before admission blocks the admission, while an admission already committed remains enrolled and is flagged.
@@ -107,5 +108,5 @@ Add an enrollment-only revocation subresource to the existing CertificateSigning
 
 - Respects ADR 0003 (reuse the enrollment CSR as the credential identity) and ADR 0004 (enforce enrollment revocation at mTLS without eviction).
 - Part C owns storing the issuing-CSR binding on Enrollment Request creation. This part consumes that binding for revocation consequences and adds no CSR verification step.
-- The TLS barrier’s fingerprint lookup identifies which already-issued CSR corresponds to the presented leaf; it does not re-verify the CSR or the certificate chain, which Go’s existing mTLS configuration already handles.
+- Enrollment authentication's exact-leaf digest lookup identifies which already-issued CSR corresponds to the presented leaf; it does not re-verify the CSR or the certificate chain, which Go's existing mTLS configuration already handles.
 - Revocation is admission control and identification, not eviction. Existing management access remains governed by its existing certificate and authentication paths.

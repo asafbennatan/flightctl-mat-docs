@@ -75,7 +75,7 @@ Extract the domain-independent CEL machinery into a shared, consumer-agnostic ru
 
 - The EnrollmentApprovalPolicy resource, its CRUD service, store, status subresource, and set-validation-under-CSR-lock orchestration (Part B, designed separately).
 - The admission transaction, quota accounting, label seal, Enrollment Request provenance fields, and condition/reason persistence (Part C).
-- CSR issuance-time and revocation extensions, name retention, and signer-filtered inventory (Part D).
+- CSR issuance-time and revocation status, name retention, and signer-filtered inventory (Parts D–E).
 - mTLS revocation enforcement, pending-request rejection, and device flagging (Part E).
 - TPM challenge machinery itself (existing; only the separate policy gate is in scope here).
 - REST routes, CLI, UI, operator/security documentation, the 5000-device scale demonstration, and hardening evidence (Parts G–H).

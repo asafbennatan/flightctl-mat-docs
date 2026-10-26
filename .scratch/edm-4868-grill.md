@@ -85,7 +85,7 @@ already answers and the questions that remain.
 
 ❓ **Q12** - **Revocation semantics**: What does revoking an enrollment certificate do, and where is it enforced?
 
-➡️ **[settled]** Revocation is enforced at mTLS verification via a `VerifyConnection` hook plus a primary-database barrier on every enrollment handshake, failing closed. It blocks new enrollment immediately, rejects associated pending ERs with a reason, and flags all automatically onboarded devices associated with the certificate within five minutes. It does not evict enrolled devices or stop management-certificate renewal. (PRD FR-11, NFR-2, AC-10; Design §9; ADR 0004)
+➡️ **[settled]** Enrollment mTLS authentication resolves the exact presented leaf to its issuing CSR and checks the CSR's committed revocation state. A short-lived shared status cache serves repeated checks across replicas, and a committed revocation invalidates its cached status; unresolved or unavailable enforcement state fails closed. It blocks new enrollment immediately, rejects associated pending ERs with a reason, and flags all automatically onboarded devices associated with the certificate within five minutes. It does not evict enrolled devices or stop management-certificate renewal. (PRD FR-11, NFR-2, AC-10; Design §9; ADR 0004)
 
 ---
 

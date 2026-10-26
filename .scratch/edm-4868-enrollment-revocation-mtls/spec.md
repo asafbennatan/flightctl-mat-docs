@@ -8,7 +8,7 @@ A revoked enrollment credential must stop new device enrollment immediately, inc
 
 ## Solution
 
-Enforce enrollment revocation during mTLS verification with a primary-database barrier on every enrollment handshake. Revocation rejects associated pending Enrollment Requests, flags automatically onboarded devices within five minutes, and never evicts enrolled devices or interrupts management renewal.
+Enforce enrollment revocation during enrollment mTLS authentication by resolving the exact presented leaf to its issuing CSR and checking the CSR's committed revocation state. A short-lived shared status cache serves repeated checks across replicas, and a committed revocation invalidates its cached status. Revocation rejects associated pending Enrollment Requests, flags automatically onboarded devices within five minutes, and never evicts enrolled devices or interrupts management renewal. Missing or unavailable enforcement state fails closed.
 
 ## User Stories
 
@@ -23,23 +23,25 @@ Enforce enrollment revocation during mTLS verification with a primary-database b
 9. As an auditor, I want revocation to record actor, time, and reason, so that the security decision is attributable.
 10. As an auditor, I want revocation state exposed through the CSR, so that credential inventory remains the source of truth.
 11. As a Flight Control engineer, I want revocation to reuse the existing mTLS verification path, so that every enrollment listener is covered without a new gateway.
-12. As a Flight Control engineer, I want revocation to avoid CRL and OCSP infrastructure, so that the control plane does not gain an external availability dependency.
+12. As a Flight Control engineer, I want revocation state to come from the CSR and its shared status cache, so that the control plane has no external revocation-availability dependency.
 
 ## Implementation Decisions
 
-- Revocation is enforced during mTLS verification through the existing connection hook.
-- Every enrollment handshake performs an authoritative primary-database check.
+- Enrollment authentication resolves the presented leaf through the authenticated tenant's private certificate-digest index and checks the issuing CSR's committed revocation state.
+- A short-lived shared status cache serves repeated checks across replicas; a committed revocation invalidates the cached status.
+- A cache miss loads authoritative CSR status; revoked, ambiguous, unresolved, and unavailable authoritative state fail closed.
+- HTTP enrollment middleware and gRPC stream interception use the same enrollment status check before handlers run, including resumed TLS sessions.
 - Revocation commits a durable deny decision, audit record, and pending rejection/flagging work.
 - Pending Enrollment Requests bound to the revoked credential are rejected with a distinct reason.
 - Automatically onboarded devices associated with the credential are flagged within five minutes.
 - Revocation never removes an enrolled Device, stops management renewal, or changes service-client behavior.
-- CRL and OCSP are not introduced.
 
 ## Testing Decisions
 
 - Good tests assert externally visible enrollment, revocation, and Device behavior rather than verifier internals.
-- The primary seam is the existing mTLS verification path and revocation API.
-- Verify post-commit handshakes fail across replicas and resumed sessions.
+- The primary seam is the enrollment mTLS authentication path and revocation API.
+- Verify post-commit enrollment requests fail across replicas and resumed sessions.
+- Verify cache hits serve repeated checks and committed revocation invalidates the cached status.
 - Verify authoritative-store unavailability fails closed.
 - Verify pending requests are rejected and affected devices are flagged within the operational bound.
 - Verify management renewal and service-client behavior remain unchanged.

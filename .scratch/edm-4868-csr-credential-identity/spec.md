@@ -8,7 +8,7 @@ Enrollment approval policies, revocation, and affected-device traceability need 
 
 ## Solution
 
-Reuse the existing enrollment-signer CertificateSigningRequest’s tenant-local name as the enrollment-credential identity. Extend that CSR’s status with issuance time and revocation state, and let Enrollment Requests carry an optional reference to the issuing CSR. No new credential resource, fingerprint, or UUID is introduced.
+Reuse the existing enrollment-signer CertificateSigningRequest’s tenant-local name as the enrollment-credential identity. Extend that CSR’s status with issuance time and revocation state, and let Enrollment Requests carry an optional reference to the issuing CSR. Enrollment authentication resolves the exact presented leaf through the authenticated tenant’s private certificate-digest index and carries the unique CSR name in the enrollment identity; Enrollment Request creation persists that name. No new credential resource, fingerprint, or UUID is introduced.
 
 ## User Stories
 
@@ -21,7 +21,7 @@ Reuse the existing enrollment-signer CertificateSigningRequest’s tenant-local 
 7. As an auditor, I want Enrollment Requests to record their issuing CSR when known, so that I can trace admissions back to a credential.
 8. As an auditor, I want historical requests without a stored reference to remain explicitly unknown, so that the system does not fabricate provenance.
 9. As an API consumer, I want the existing CSR resource to remain the credential inventory, so that tooling does not need a new collection.
-10. As an API consumer, I want the CSR API to remain unchanged apart from status extensions, so that existing automation keeps working.
+10. As an API consumer, I want the CSR API to remain unchanged apart from added status fields, so that existing automation keeps working.
 11. As a Flight Control engineer, I want identity resolution to fail closed when the exact issuing CSR cannot be established, so that ambiguity never becomes authorization.
 12. As a Flight Control engineer, I want the design to avoid a new origin classification, so that legacy requests remain represented by the absence of a reference.
 
@@ -30,8 +30,8 @@ Reuse the existing enrollment-signer CertificateSigningRequest’s tenant-local 
 - The existing enrollment-signer CSR’s tenant-local name is the enrollment-credential identity.
 - No EnrollmentCertificate resource, fingerprint identity, or credential UUID is introduced.
 - Enrollment Request status gains an optional reference to the issuing CSR.
-- The reference is derived from authenticated certificate context, not from device-supplied request fields.
-- Exact leaf resolution validates the presented certificate against the issuing CSR’s retained certificate.
+- The reference comes from the CSR name carried in the authenticated enrollment identity, not from device-supplied request fields.
+- Enrollment authentication matches the exact presented leaf DER against the private certificate-digest index within the authenticated tenant/organization and requires exactly one decoded retained-certificate match. The digest index covers credentials issued before and after this design.
 - Names referenced by policies or retained enrollment and revocation history are reserved against deletion and recreation.
 - Issuance time and revocation state are exposed through the CSR’s existing public status.
 
@@ -40,7 +40,7 @@ Reuse the existing enrollment-signer CertificateSigningRequest’s tenant-local 
 - Good tests assert externally visible CSR and Enrollment Request behavior, not private resolver internals.
 - The primary seam is the existing CSR status and Enrollment Request creation path.
 - Verify that an authenticated enrollment certificate resolves to the correct issuing CSR.
-- Verify that ambiguous or missing identity fails closed without creating a fabricated reference.
+- Verify that a unique exact-leaf match resolves to the correct CSR and that an unresolved leaf cannot fabricate a reference.
 - Verify that reserved names cannot be retargeted through deletion and recreation.
 - Prior art is the existing CSR issuance and Enrollment Request service tests.
 

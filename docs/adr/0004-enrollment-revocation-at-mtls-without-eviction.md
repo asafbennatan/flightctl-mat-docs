@@ -8,8 +8,8 @@ Enrollment-certificate revocation is enforced during enrollment mTLS
 authentication by resolving the presented leaf to its issuing enrollment
 credential CSR. The CSR's committed revocation state is authoritative; a
 short-lived shared status cache may serve repeated checks, but a committed
-revocation invalidates its cached status and missing or unavailable
-enforcement state fails closed.
+revocation invalidates its cached status. Missing or ambiguous leaf resolution
+and unavailable enforcement state fail closed.
 CRL and OCSP were rejected because they add distribution infrastructure and
 staleness without improving this single-service control plane.
 Deleting the CSR row is not revocation: the service signs certificates and
