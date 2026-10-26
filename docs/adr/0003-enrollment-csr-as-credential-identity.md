@@ -16,19 +16,24 @@ A dedicated EnrollmentCertificate resource would duplicate CSR inventory and
 issuance while requiring migration of existing credentials.
 A fingerprint or UUID identity would add a second identifier beside the
 existing tenant-local primary key.
-The issuer attests the exact CSR name in its signed enrollment certificate.
-Enrollment Request creation reads that identity from the already authenticated
-certificate/context to set the optional `status.enrollmentCertificateName`
-reference, its only origin signal, without an identity-discovery or row-existence
-lookup.
+The enrollment certificate does not embed the CSR name. Enrollment
+authentication resolves the exact presented leaf to its issuing enrollment CSR
+by matching the leaf DER against the private certificate-digest index within
+the authenticated tenant/organization. The resolved CSR name is carried in the
+authenticated enrollment identity, and Enrollment Request creation persists it
+as the optional `status.enrollmentCertificateName` reference.
 Device-supplied request-body fields are not trusted replacements.
 
-Only when that signed identity is absent, attempt to recover it from the
-issuing enrollment CSR within the authenticated tenant/organization. Decode its
-retained issued certificate and match the exact presented leaf; a matching
-common name or the ER's device-management CSR is not sufficient proof.
-A unique actual issuing-CSR match supplies the same reference without
-certificate reissuance. Missing identity must not be invented.
+A matching common name, serial number, or the ER's device-management CSR is not
+sufficient identity proof. Exactly one issuance record must match the presented
+leaf; ambiguity or no match leaves the reference absent. Missing identity must
+not be invented. The digest index applies equally to credentials issued before
+and after this design, so resolution does not require certificate reissuance.
+
+Embedding the CSR name in the certificate as another issuer-owned extension was
+rejected. Enrollment authentication already resolves the exact leaf to obtain
+the CSR's current approval and revocation state, so the extension would add a
+second identity channel that can disagree with CSR inventory.
 
 If reliable identity cannot be established, create the Enrollment Request with
 the reference absent, as on pre-feature requests without saved origin.

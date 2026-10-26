@@ -4,9 +4,12 @@ status: proposed
 
 # Enforce enrollment revocation at mTLS without eviction
 
-Enrollment-certificate revocation is enforced during mTLS verification
-through a `VerifyConnection` hook plus a primary-database barrier on every
-enrollment handshake, failing closed when enforcement state is unavailable.
+Enrollment-certificate revocation is enforced during enrollment mTLS
+authentication by resolving the presented leaf to its issuing enrollment
+credential CSR. The CSR's committed revocation state is authoritative; a
+short-lived shared status cache may serve repeated checks, but a committed
+revocation invalidates its cached status and missing or unavailable
+enforcement state fails closed.
 CRL and OCSP were rejected because they add distribution infrastructure and
 staleness without improving this single-service control plane.
 Deleting the CSR row is not revocation: the service signs certificates and
