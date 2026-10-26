@@ -59,7 +59,7 @@ Add EnrollmentApprovalPolicy as a standard core resource with create, list, get,
 - `GuardCertificateMutation` prevents deletion, replacement, or name reuse that would break a policy binding, reset a count, or evade retained admission audit while enforcement or retention requires the credential. It does not change renewal or service-client CSR behavior.
 - The policy table uses the existing tenant/name/resource-version resource shape. Spec and status are stored once in the existing JSONB-style resource columns. There is an index from tenant and certificate name to policies, but no uniqueness constraint on certificate name because multiple disjoint policies are allowed.
 - Every returned policy initializes status with `enrollmentCount: 0`. Only server admission logic updates the count. No remaining-count, CSR-side counter, or duplicate accounting field is stored.
-- Policy-set changes increment the per-certificate set revision while holding the CSR lock, so queued or final admission work can detect stale evaluations. The physical CSR-side storage for that revision is coordinated with the certificate-extension part; this part owns the revision semantics on policy writes.
+- Policy-set changes increment the per-certificate set revision while holding the CSR lock, so queued or final admission work can detect stale evaluations. This part owns the revision semantics on policy writes.
 - Policy deletion preserves admission audit and counter history through the established tombstone/retention approach. It does not add a Device relationship or foreign key.
 - Events use the mutation result and before/after snapshots returned by the store. The service does not independently re-read a just-written policy to discover what changed.
 - REST authorization remains tenant-scoped. Policy administration and quota changes require the existing administrator/quota permissions; status reads use policy-status read permission. No caller-provided organization can widen access.
@@ -80,7 +80,7 @@ Add EnrollmentApprovalPolicy as a standard core resource with create, list, get,
 
 - The shared CEL runtime and enrollment matching engine (Part A).
 - The admission transaction, Enrollment Request mutation, label seal, provenance fields, conditions, idempotency ledger, and final exact-one-match execution (Part C).
-- CSR issuance-time, revocation, and certificate-extension storage (Part D), and mTLS enforcement or device flagging (Part E).
+- CSR issuance metadata, revocation status, and mTLS enforcement or device flagging (Parts D–E).
 - TPM challenge and verification machinery (Part F); this part only persists and validates the separate policy gate.
 - CLI, UI, end-user documentation, and the 5000-device scale demonstration (Parts G–H).
 - Changing the existing EnrollmentRequest, Device, renewal, or service-client behavior.
