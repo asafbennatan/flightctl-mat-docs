@@ -32,7 +32,7 @@ Reuse the existing enrollment-signer CertificateSigningRequest’s tenant-local 
 - Enrollment Request status gains an optional reference to the issuing CSR.
 - The reference comes from the CSR name carried in the authenticated enrollment identity, not from device-supplied request fields.
 - Enrollment authentication matches the exact presented leaf DER against the private certificate-digest index within the authenticated tenant/organization and requires exactly one decoded retained-certificate match. The digest index covers credentials issued before and after this design.
-- Names referenced by policies or retained enrollment and revocation history are reserved against deletion and recreation.
+- The policy and retained rejection/revocation parts own CSR-name reservation, so names they reference cannot be retargeted by deletion and recreation.
 - Issuance time and revocation state are exposed through the CSR’s existing public status.
 
 ## Testing Decisions
@@ -41,7 +41,7 @@ Reuse the existing enrollment-signer CertificateSigningRequest’s tenant-local 
 - The primary seam is the existing CSR status and Enrollment Request creation path.
 - Verify that an authenticated enrollment certificate resolves to the correct issuing CSR.
 - Verify that a unique exact-leaf match resolves to the correct CSR and that an unresolved leaf cannot fabricate a reference.
-- Verify that reserved names cannot be retargeted through deletion and recreation.
+- The policy and retained rejection/revocation parts verify that their reserved names cannot be retargeted through deletion and recreation.
 - Prior art is the existing CSR issuance and Enrollment Request service tests.
 
 ## Out of Scope

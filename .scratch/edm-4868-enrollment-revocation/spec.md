@@ -8,7 +8,7 @@ Security officers need to stop a compromised or retired enrollment credential fr
 
 ## Solution
 
-Add an enrollment-only revocation subresource to the existing CertificateSigningRequest. A security officer commits immutable revocation state and durable consequence work in one transaction. Enrollment authentication resolves a presented enrollment leaf to its issuing CSR by exact DER fingerprint and rejects revoked or unresolved credentials. A short-lived shared status cache serves repeated checks across replicas; a committed revocation invalidates the cached status, and unavailable authoritative state fails closed. Enrollment Requests use the issuing-CSR binding already stored by the admission pipeline; this part adds no new CSR verification or authorization interface. Pending Enrollment Requests bound to a revoked CSR become rejected with a reason, and automatically onboarded Devices are flagged within five minutes. Revocation never removes a Device or stops its management-certificate renewal.
+Add an enrollment-only revocation subresource to the existing CertificateSigningRequest. A security officer commits immutable revocation state and an audit event in one transaction; the event drives consequence work through the existing worker queue. Enrollment authentication resolves a presented enrollment leaf to its issuing CSR by exact DER fingerprint and rejects revoked or unresolved credentials. A short-lived shared negative status cache short-circuits known denials, while every allow decision revalidates against the authoritative CSR; unavailable authoritative state fails closed. Enrollment Requests use the issuing-CSR binding already stored by the admission pipeline; this part adds no new CSR verification or authorization interface. Pending Enrollment Requests bound to a revoked CSR become rejected with a reason, and automatically onboarded Devices are flagged within five minutes. Revocation never removes a Device or stops its management-certificate renewal.
 
 ## User Stories
 
@@ -36,10 +36,10 @@ Add an enrollment-only revocation subresource to the existing CertificateSigning
 22. As a Flight Control engineer, I want the issuing CSR to remain the credential identity, so that revocation does not introduce a second public identifier.
 23. As a Flight Control engineer, I want the Enrollment Request’s stored issuing-CSR binding to be the approval-time input, so that Part E does not duplicate or verify CSR binding.
 24. As a Flight Control engineer, I want the check installed in the enrollment authentication path shared by HTTP and gRPC, so that both surfaces receive the same enforcement.
-25. As a Flight Control engineer, I want revocation checks to use a short-lived shared status cache with revocation-driven invalidation, so that repeated enrollment requests avoid a primary-database query while committed revocation takes effect promptly.
+25. As a Flight Control engineer, I want a short-lived shared negative status cache, so that repeated denied credentials avoid a primary-database query while every allow decision revalidates authoritatively.
 26. As a Flight Control engineer, I want established connections rechecked before enrollment work is committed, so that a connection accepted before revocation cannot complete admission afterward.
-27. As a Flight Control engineer, I want durable consequence work instead of a new event type, so that recovery does not depend on a domain event remaining in a queue.
-28. As a Flight Control engineer, I want revocation and consequence scheduling committed atomically, so that a revoked CSR can never be observable without its follow-up work.
+27. As a Flight Control engineer, I want consequence work driven by the durable revocation event through the existing worker queue, so that recovery follows the same delivery guarantees as other workloads.
+28. As a Flight Control engineer, I want revocation and its audit event committed atomically, so that a revoked CSR is never observable without its audit record.
 29. As an SRE, I want backlog and oldest-revocation metrics, so that I can detect failures to meet the five-minute flagging bound.
 30. As an SRE, I want consequence work to resume after a crash, so that a worker restart does not leave flags or pending-request rejections incomplete.
 
@@ -53,7 +53,7 @@ Add an enrollment-only revocation subresource to the existing CertificateSigning
 - Resolve a presented enrollment leaf to its issuing CSR using an exact DER fingerprint lookup against the retained issued certificate bytes. This is a lookup, not CSR verification.
 - Do not use common name, issuer, or serial number as the sole revocation identity.
 - Enrollment authentication checks the issuing CSR's committed revocation state through a short-lived shared status cache keyed by the authenticated tenant and exact certificate digest.
-- A committed revocation invalidates the cached status before subsequent enrollment authentication.
+- A committed revocation is observed on the next authoritative lookup; the cache holds no positive entry to invalidate.
 - A cache miss loads authoritative CSR status through exact-leaf resolution; revoked credentials, ambiguous or unresolved leaves, and unavailable authoritative state fail closed.
 - Install the check in the enrollment authentication path shared by HTTP and gRPC, including resumed sessions.
 - Apply the check only to enrollment-signer leaves; management, management-renewal, and service-client paths retain their existing behavior.
@@ -64,8 +64,8 @@ Add an enrollment-only revocation subresource to the existing CertificateSigning
 - Flag automatically onboarded Devices using the existing same-name Enrollment Request-to-Device relationship and automatic-approval provenance.
 - Do not flag manually approved Devices in this part.
 - Do not remove Devices, stop management-certificate renewal, quarantine Devices, or change service-client authentication.
-- Commit immutable revocation state and durable consequence work together in one narrow transaction.
-- Use a durable revocation-work record and existing worker/task infrastructure; no new domain event type is required.
+- Commit immutable revocation state and its audit event together in one narrow transaction; publish the event after commit.
+- Use the existing durable event row plus worker/task queue and checkpoint; no separate outbox or work-record table is required.
 - Process consequence work idempotently in bounded batches, with recovery after worker restarts.
 - Block deletion or name reuse of an enrollment CSR while a policy, retained Enrollment Request history, or revocation record depends on it.
 - Keep absent issuing-CSR references absent on historical Enrollment Requests; do not classify those requests separately or retroactively bind them to a revoked credential.
@@ -76,8 +76,8 @@ Add an enrollment-only revocation subresource to the existing CertificateSigning
 ## Testing Decisions
 
 - Good tests assert externally visible TLS, CSR, Enrollment Request, and Device behavior. They do not test private helper names, SQL text, lock order, or queue internals.
-- Use a real mTLS integration seam for enrollment authentication behavior: unrevoked enrollment, revoked enrollment, unresolved leaf, authoritative-store unavailability, cache hits across replicas, cache invalidation on revocation, session resumption, and non-enrollment signers.
-- Test status-cache misses, invalidation, and unavailable-cache fallback so revocation status remains authoritative.
+- Use a real mTLS integration seam for enrollment authentication behavior: unrevoked enrollment, revoked enrollment, unresolved leaf, authoritative-store unavailability, cache hits across replicas, deny-cache behavior after revocation, session resumption, and non-enrollment signers.
+- Test status-cache misses, deny hits, and unavailable-cache fallback so revocation status remains authoritative.
 - Test the CSR service for revocation validation, idempotency, immutable fields, permission handling, wrong-signer rejection, and unissued-certificate rejection.
 - Test Enrollment Request behavior using the stored issuing-CSR binding: immediate rejection projection, blocked approval, unchanged approved requests, and unchanged requests with no issuing-CSR reference.
 - Test final admission concurrency so revocation committed before admission blocks the admission, while an admission already committed remains enrolled and is flagged.

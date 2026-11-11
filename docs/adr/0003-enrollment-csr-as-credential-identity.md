@@ -49,8 +49,8 @@ authentication and request failures use the existing error handling.
 
 `EnrollmentApprovalPolicy.spec.certificateName` and Enrollment Request status
 reference CSR names.
-Names referenced by policies or retained enrollment and revocation history are
-reserved so deletion and recreation cannot retarget relationships.
+The policy and retained rejection/revocation parts reserve the names they
+reference, so deletion and recreation cannot retarget those relationships.
 Historical admissions without a stored issuing-CSR reference retain that
 absence, not a separate origin classification. Unknown credential provenance
 is not reconstructed from a management certificate or later polling.
