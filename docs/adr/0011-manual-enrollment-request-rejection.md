@@ -21,6 +21,10 @@ terminal rejection was rejected because an administrator needs to correct a
 mistake; automatic reopening was rejected because it would override the human
 decision.
 
+The same explicit-approval rule applies to a request denied because its
+enrollment credential was revoked; denial does not create a terminal approval
+block. The approval path must still validate the bound credential.
+
 For concurrent approval and rejection, the first committed decision wins and
 the competitor receives a conflict. A committed rejection prevents stale
 automatic approval, while a committed approval makes rejection invalid because

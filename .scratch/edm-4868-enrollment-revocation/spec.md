@@ -59,7 +59,7 @@ Add an enrollment-only revocation subresource to the existing CertificateSigning
 - Apply the check only to enrollment-signer leaves; management, management-renewal, and service-client paths retain their existing behavior.
 - Recheck revocation in Enrollment Request create, update, approval, TPM completion, and final admission paths so established connections cannot complete new enrollment after revocation.
 - Use the issuing-CSR binding stored on the Enrollment Request by the admission pipeline. Do not introduce a new public binding method or a new CSR verification step.
-- Project pending Enrollment Requests bound to a revoked CSR as rejected on read and block their approval while durable materialization is pending.
+- Project pending Enrollment Requests bound to a revoked CSR as rejected by the consequence worker. Denial does not create a separate approval block; a denied request can be explicitly approved later.
 - Persist the rejected Enrollment Request condition through the consequence worker using the repository’s normal typed mutation behavior.
 - Flag automatically onboarded Devices using the existing same-name Enrollment Request-to-Device relationship and automatic-approval provenance.
 - Do not flag manually approved Devices in this part.
