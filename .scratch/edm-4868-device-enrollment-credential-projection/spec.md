@@ -1,33 +1,33 @@
 Status: ready-for-agent
 
-# EDM-4868 — Project enrollment credentials onto Devices
+# EDM-4868 — Project enrollment credential revocation state onto Devices
 
 ## Problem Statement
 
-Security officers need to find devices admitted by a revoked enrollment credential without requiring clients to join Enrollment Requests and Devices manually. A separate provenance resource would duplicate the existing same-name relationship and add unnecessary migration and ownership rules.
+Security officers need to find devices whose admitting enrollment credential was revoked. The issuing credential name already exists on the Enrollment Request, and Devices share the Enrollment Request name, so a duplicate Device credential field is unnecessary. A separate provenance resource would duplicate the existing relationship and add unnecessary migration and ownership rules.
 
 ## Solution
 
-Automatically copy the committed Enrollment Request’s enrollment credential and approving policy into a server-owned Device enrollment-credential status. Revocation materializes both a human-readable condition and a stable selector so affected Devices can be filtered and badged without a client-side join.
+Project the enrollment credential's revocation state onto the Device as a server-owned revoked flag and a human-readable condition. Resolve the issuing credential for Device filters through the existing same-tenant, same-name Enrollment Request-to-Device relationship. Revocation materializes the flag, condition, and a stable revoked selector so affected Devices can be filtered and badged without a client-side join.
 
 ## User Stories
 
-1. As a security officer, I want each automatically admitted Device to record its enrollment credential, so that I can trace it after revocation.
-2. As a security officer, I want the approving policy recorded on the Device, so that I can understand which rule admitted it.
-3. As a security officer, I want affected Devices exposed through indexed selectors, so that I do not need a client-side join.
-4. As a fleet administrator, I want a human-readable condition on affected Devices, so that operators can see why a Device is flagged.
-5. As a fleet administrator, I want revocation to preserve device lifecycle, labels, and management renewal, so that traceability does not become eviction.
-6. As an auditor, I want the projection to be server-owned, so that agents and administrators cannot rewrite credential provenance.
-7. As an auditor, I want the projection to reflect committed admission state, so that it cannot authorize new enrollment by itself.
-8. As an API consumer, I want Device selectors for credential and policy, so that inventory queries remain consistent.
-9. As a Flight Control engineer, I want the existing Enrollment Request-to-Device relationship preserved, so that this change does not add a duplicate foreign key.
-10. As a Flight Control engineer, I want status updates protected, so that normal Device reporting cannot erase security provenance.
+1. As a security officer, I want each Device to record whether its admitting enrollment credential was revoked, so that I can identify affected Devices.
+2. As a security officer, I want affected Devices exposed through a stable revoked selector, so that I do not need a client-side join.
+3. As a fleet administrator, I want a human-readable condition on affected Devices, so that operators can see why a Device is flagged.
+4. As a fleet administrator, I want revocation to preserve device lifecycle, labels, and management renewal, so that traceability does not become eviction.
+5. As an auditor, I want the revocation projection to be server-owned, so that agents and administrators cannot rewrite it.
+6. As an auditor, I want the projection to reflect committed revocation state, so that it cannot authorize new admission by itself.
+7. As an API consumer, I want a Device credential filter that resolves the issuing credential from the same-name Enrollment Request, so that credential-based inventory remains available without duplicate Device state.
+8. As a Flight Control engineer, I want the existing Enrollment Request-to-Device relationship preserved, so that this change does not add a duplicate foreign key.
+9. As a Flight Control engineer, I want status updates protected, so that normal Device reporting cannot erase the revocation state.
 
 ## Implementation Decisions
 
-- Automatic admission stamps the issuing enrollment-credential name and approving policy onto Device status.
-- Revocation materializes a Device condition and a stable revoked selector.
-- The projection is denormalized from committed Enrollment Request admission state.
+- Revocation materializes a Device `revoked` flag and an `EnrollmentCredentialRevoked` condition.
+- The Device status does not copy the issuing credential name or approving policy.
+- The Device credential filter resolves `enrollment_requests.status.enrollmentCertificateName` through the same-name Enrollment Request.
+- The projection is denormalized only for revocation state.
 - No Device provenance resource, policy relationship, or duplicate Enrollment Request foreign key is added.
 - Agent and administrator status writes cannot replace the projection.
 - The projection records audit state and does not authorize new admission.
@@ -35,17 +35,19 @@ Automatically copy the committed Enrollment Request’s enrollment credential an
 ## Testing Decisions
 
 - Good tests assert externally visible Device status and selectors, not storage internals.
-- The primary seam is the existing automatic-admission commit and Device status query path.
-- Verify automatic admission stamps credential and policy provenance.
-- Verify revocation materializes both the condition and selector.
+- The primary seam is the revocation consequence worker and the Device status query path.
+- Verify revocation materializes the revoked flag and condition.
+- Verify the Device credential filter resolves the same-name Enrollment Request.
 - Verify normal Device status updates cannot erase the projection.
-- Verify indexed credential and policy queries return the expected Devices.
+- Verify the revoked selector returns the expected Devices.
+- Verify already-flagged Devices are skipped.
 - Prior art is the existing Device status, Enrollment Request, and revocation integration tests.
 
 ## Out of Scope
 
 - A new Device provenance resource.
 - A new policy relationship resource.
+- Copying the issuing credential name or approving policy onto Device status.
 - Rebuilding the existing Enrollment Request-to-Device relationship.
 - Using the projection as an authorization decision.
 
