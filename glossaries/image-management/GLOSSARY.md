@@ -6,6 +6,9 @@ This context identifies images and describes the outcomes of applying deltas.
 
 **Image reference** — A registry name that selects an image, optionally through a tag or digest.
 
+**Repository resource** — A Flight Control resource that configures access to an OCI registry. An organization Repository resource can be designated as a delta storage target.
+_Avoid_: repository, repo (when referring to the external OCI location)
+
 **Digest-pinned image reference** — An image reference that names a registry object by digest instead of a mutable tag.
 
 **Image index digest** — The digest of an image index that selects platform-specific manifests.
@@ -26,7 +29,16 @@ This context identifies images and describes the outcomes of applying deltas.
 
 **Runtime image ID** — An identifier assigned by an image runtime. It may be opaque and is not necessarily a registry image digest.
 
-**OCI image delta** — An OCI artifact containing the changes needed to reconstruct a target image from a source image.
+**OCI image delta** — The changes needed to reconstruct a target image from a source image.
+
+**Delta artifact** — An OCI artifact that contains an OCI image delta and metadata identifying its source and target images.
+_Avoid_: OCI image delta (when referring to the stored OCI artifact)
+
+**Delta artifact repository** — The external OCI repository that stores and serves delta artifacts.
+_Avoid_: delta repository, repo (when referring to the external registry location)
+
+**Delta storage target** — Flight Control's configured OCI destination for generated delta artifacts, provided by an organization Repository resource or the deployment-level default.
+_Avoid_: delta artifact repository (when referring to Flight Control's configuration)
 
 **Delta hint** — A reference supplied with an update to identify a specific delta artifact.
 
